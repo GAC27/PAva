@@ -113,8 +113,8 @@ public class BoxingProfiler {
 		}
 	
 		ctMethod = ct.getDeclaredMethod("insertData");
-		ctMethod.setBody(insertData);
-		ct.addMethod(ctMethod);
+		ctMethod.setBody(insertData);		//compila o codigo que vai no src e substitui pelo corpo do metodo original
+//		ct.addMethod(ctMethod);			//Não é necessario fazer addMethod porque o metodo já existe e portanto ao fazer addMethod esta-se a escrever duas vezes o mesmo metodo no bytecode
 		
 		
 //		ct.getDeclaredMethod("printSum").insertAfter("{ System.err.println(\"BOXING3\"); }");
