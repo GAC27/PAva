@@ -15,24 +15,32 @@ import javassist.expr.MethodCall;
 public class BoxingProfiler {
 	private static String insertData2 = "static void insertData(String method, String type, String action){}";
 	private static String insertData = "{"
-			+"		java.util.TreeMap methods = (java.util.TreeMap)data.get($1);"
+			+"		java.util.TreeMap types;"
+			+"		Integer count;"
+			+"		java.util.TreeMap methods = (java.util.TreeMap) data.get($1);"
 			+"		if(methods == null){"
-			+"			((java.util.TreeMap)((java.util.TreeMap)data.put($1, new java.util.TreeMap())).put($2, new java.util.TreeMap())).put($2, new Integer(1));"
+			+"			methods=new java.util.TreeMap();"
+			+"			types = new java.util.TreeMap();"
+			+"			types.put($3, new Integer(1));"
+			+"			methods.put($2, types);"
+			+"			data.put($1, methods);"
 			+"			return;"
 			+"		}"
-			+"		java.util.TreeMap types = (java.util.TreeMap)methods.get($2);"
+			+"		types = (java.util.TreeMap)methods.get($2);"
 			+"		if(types == null){"
-			+"			((java.util.TreeMap)methods.put($2, new java.util.TreeMap())).put($2, new Integer(1));"
+			+"			types = new java.util.TreeMap();"
+			+"			types.put($3, new Integer(1));"
+			+"			methods.put($2, types);"
 			+"			return;"
 			+"		}"
-			+"		Integer count = (Integer)types.get($2);"
+			+"		count = (Integer)types.get($3);"
 			+"		if(count == null){"
-			+"			types.put($2, new Integer(1));"
+			+"			types.put($3, new Integer(1));"
 			+"			return;"
 			+"		}"
-			+"		types.put($2, count + 1);"
+			+"		types.put($3, count + 1);"
 			+"	}";
-	
+		
 	private static String getAction(String clazz, String methodName){
 		
 		switch( clazz ) {
@@ -113,7 +121,7 @@ public class BoxingProfiler {
 		}
 	
 		ctMethod = ct.getDeclaredMethod("insertData");
-		ctMethod.setBody(insertData);		//compila o codigo que vai no src e substitui pelo corpo do metodo original
+		ctMethod.setBody(insertData);		//compila o codigo que vai no src e substitui pelo corpo do metodo
 //		ct.addMethod(ctMethod);			//Não é necessario fazer addMethod porque o metodo já existe e portanto ao fazer addMethod esta-se a escrever duas vezes o mesmo metodo no bytecode
 		
 		
