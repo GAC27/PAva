@@ -15,22 +15,22 @@ import javassist.expr.MethodCall;
 public class BoxingProfiler {
 	private static String insertData2 = "static void insertData(String method, String type, String action){}";
 	private static String insertData = "{"
-			+"		java.util.TreeMap methods = (java.util.TreeMap)data.get(method);"
+			+"		java.util.TreeMap methods = (java.util.TreeMap)data.get($1);"
 			+"		if(methods == null){"
-			+"			((java.util.TreeMap)((java.util.TreeMap)data.put(method, new java.util.TreeMap())).put(type, new java.util.TreeMap())).put(action, new Integer(1));"
+			+"			((java.util.TreeMap)((java.util.TreeMap)data.put($1, new java.util.TreeMap())).put($2, new java.util.TreeMap())).put($2, new Integer(1));"
 			+"			return;"
 			+"		}"
-			+"		java.util.TreeMap types = (java.util.TreeMap)methods.get(type);"
+			+"		java.util.TreeMap types = (java.util.TreeMap)methods.get($2);"
 			+"		if(types == null){"
-			+"			((java.util.TreeMap)methods.put(type, new java.util.TreeMap())).put(action, new Integer(1));"
+			+"			((java.util.TreeMap)methods.put($2, new java.util.TreeMap())).put($2, new Integer(1));"
 			+"			return;"
 			+"		}"
-			+"		Integer count = (Integer)types.get(action);"
+			+"		Integer count = (Integer)types.get($2);"
 			+"		if(count == null){"
-			+"			types.put(action, new Integer(1));"
+			+"			types.put($2, new Integer(1));"
 			+"			return;"
 			+"		}"
-			+"		types.put(action, count + 1);"
+			+"		types.put($2, count + 1);"
 			+"	}";
 	
 	private static String getAction(String clazz, String methodName){
@@ -111,11 +111,16 @@ public class BoxingProfiler {
     	    }
 		});
 		}
+	
 		ctMethod = ct.getDeclaredMethod("insertData");
 		ctMethod.setBody(insertData);
 		ct.addMethod(ctMethod);
+		
+		
 //		ct.getDeclaredMethod("printSum").insertAfter("{ System.err.println(\"BOXING3\"); }");
 //		addTiming(ct,"printSum");
+		
+		
 		Class clazz = ct.toClass();
 		
 		clazz.getMethod("main", String[].class).invoke(null,(Object) new String[0]);
