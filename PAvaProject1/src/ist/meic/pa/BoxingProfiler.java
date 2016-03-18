@@ -86,7 +86,7 @@ public class BoxingProfiler {
 			}else if(methodName.equals("longValue")){
 				return "unboxed";
 			}
-	}
+		}
 		
 		return "BOX";
 	}
@@ -114,8 +114,9 @@ public class BoxingProfiler {
     	    public void edit(final MethodCall m) throws CannotCompileException {
 //    	        System.out.println(m2.getDeclaringClass().getName() + " : " + m2.getMethodInfo().getName()   + " : " + m.getClassName() + " : " +  m.getMethodName() + " : " + m2.getLongName());
     	        m.replace("{$_ = $proceed($$); "
-    	        		+ "System.out.println(\"Executed in ms: \" + \"" + m2.getDeclaringClass().getName() + " : " + m2.getMethodInfo().getName()   + " : " + m.getClassName() + " : " +  m.getMethodName() + " : " + m2.getLongName() +"\");"
-    	        				+ "insertData(\""+ m2.getLongName()+"\",\""+ m.getClassName() + "\",\"" + getAction(m.getClassName(),m2.getMethodInfo().getName()) +"\");}");
+    	        			+ "System.out.println(\""+m.getMethodName()+"\");"
+    	        			+ "insertData(\""+ m2.getLongName()+"\",\""+ m.getClassName() + "\",\"" + getAction(m.getClassName(),m.getMethodName()) +"\");"
+    	        			+ "System.out.println(\":::data\"+data+\":::\");}");
     	    }
 		});
 		}
