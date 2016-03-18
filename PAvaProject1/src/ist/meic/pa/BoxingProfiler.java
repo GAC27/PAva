@@ -88,13 +88,13 @@ public class BoxingProfiler {
 			}
 		}
 		
-		return "BOX";
+		return "NON_BOXING_FUNCTION";
 	}
 
 	
 	public static void main(String[] args) throws NotFoundException, CannotCompileException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, IOException{
 		ClassPool cp = ClassPool.getDefault();
-		System.out.println(args[0]);
+//		System.out.println(args[0]);
 		
 		
 		CtClass ct = cp.get(args[0]);
@@ -109,27 +109,26 @@ public class BoxingProfiler {
 
 		
 		for(CtMethod m2 : ct.getDeclaredMethods()){
-//			System.out.println(m2);
 		m2.instrument(new ExprEditor() {
-    	    public void edit(final MethodCall m) throws CannotCompileException {
-//    	        System.out.println(m2.getDeclaringClass().getName() + " : " + m2.getMethodInfo().getName()   + " : " + m.getClassName() + " : " +  m.getMethodName() + " : " + m2.getLongName());
-    	        m.replace("{$_ = $proceed($$); "
-    	        			+ "System.out.println(\""+m.getMethodName()+"\");"
-    	        			+ "insertData(\""+ m2.getLongName()+"\",\""+ m.getClassName() + "\",\"" + getAction(m.getClassName(),m.getMethodName()) +"\");"
+    	    public void edit(final MethodCall m) throws CannotCompileException {   
+    	        //Ver se a funçao chamada é uma funçao que faz boxing ou unboxing
+    	    	String methodBoxingType=getAction(m.getClassName(),m.getMethodName());
+    	    	
+    	    	if(!methodBoxingType.equals("NON_BOXING_FUNCTION")){
+    	    		m.replace("{$_ = $proceed($$); "
+//    	        			+ "System.out.println(\""+m.getMethodName()+"\");"
+    	        			+ "insertData(\""+ m2.getLongName()+"\",\""+ m.getClassName() + "\",\"" + methodBoxingType +"\");"
     	        			+ "System.out.println(\":::data\"+data+\":::\");}");
+    	    	}
+    	    		
+    	    	
     	    }
 		});
 		}
 	
 		ctMethod = ct.getDeclaredMethod("insertData");
-		ctMethod.setBody(insertData);		//compila o codigo que vai no src e substitui pelo corpo do metodo
-//		ct.addMethod(ctMethod);			//Não é necessario fazer addMethod porque o metodo já existe e portanto ao fazer addMethod esta-se a escrever duas vezes o mesmo metodo no bytecode
-		
-		
-//		ct.getDeclaredMethod("printSum").insertAfter("{ System.err.println(\"BOXING3\"); }");
-//		addTiming(ct,"printSum");
-		
-		
+		ctMethod.setBody(insertData);		
+
 		Class clazz = ct.toClass();
 		
 		clazz.getMethod("main", String[].class).invoke(null,(Object) new String[0]);
