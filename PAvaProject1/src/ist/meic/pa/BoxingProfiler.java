@@ -129,7 +129,7 @@ public class BoxingProfiler {
 //		});
 //	}
 	
-	public static void injectInsertDataAndReturnData(CtMethod m2) throws CannotCompileException{
+	public static void injectInsertData(CtMethod m2) throws CannotCompileException{
 		
 		m2.instrument(new ExprEditor() {
     	    public void edit(final MethodCall m) throws CannotCompileException {   
@@ -137,17 +137,16 @@ public class BoxingProfiler {
     	    	String methodBoxingType=getAction(m.getClassName(),m.getMethodName());
     	    	
     	    	if(!methodBoxingType.equals("NON_BOXING_FUNCTION")){
-    	    		m.replace("{$_ = $proceed($$);"+ "insertData(\""+ m2.getLongName()+"\",\""+ m.getClassName() 
-    	    			+ "\",\"" + methodBoxingType +"\");"
-    	    			+ "System.out.println(\":::data\"+data+\":::\");}");	  		
+    	    		m.replace("{$_ = $proceed($$);"
+    	    				+"insertData(\""+ m2.getLongName()+"\",\""+ m.getClassName() + "\",\"" + methodBoxingType +"\");}");
+//    	    			+ "System.out.println(\":::data\"+data+\":::\");}");	  		
     	    	}
-    	    	else{
-        	    	//Se o metodo chamado for um return então injectamos codigo antes para ele retornar o data antes de terminar o programa
-    	    		System.out.println(m.getMethodName());
-    	    		if(m.getMethodName().equals("return") && m2.getName().equals("main")){
-    	    			m.replace("{ printData(); $_ = $proceed($$);}");    	    	
-    	    		}
-    	    	}
+//    	    	else{
+//        	    	//Se o metodo chamado for um return então injectamos codigo antes para ele retornar o data antes de terminar o programa
+//    	    		if(m.getMethodName().equals("return") && m2.getName().equals("main")){
+//    	    			m.replace("{ printData(); $_ = $proceed($$);}");    	    	
+//    	    		}
+//    	    	}
 
     	    }
 		});
@@ -169,7 +168,11 @@ public class BoxingProfiler {
 		ct.addMethod(ctMethodPD);
 		
 		for(CtMethod m2 : ct.getDeclaredMethods()){
-			injectInsertDataAndReturnData(m2);
+			injectInsertData(m2);
+			
+			if(m2.getName().equals("main")){
+				m2.insertAfter("printData();");
+			}
 		}
 		ctMethodID = ct.getDeclaredMethod("insertData");
 		ctMethodID.setBody(insertData);	
@@ -178,7 +181,7 @@ public class BoxingProfiler {
 		ctMethodID.setBody(printData);	
 
 		Class clazz = ct.toClass();
-		clazz.getMethod("main", String[].class).invoke(null,(Object) new String[0]);
+		clazz.getMethod("main", String[].class).invoke(null,(Object) new String[0]);		
 		
 	}
 	

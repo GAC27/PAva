@@ -77,7 +77,12 @@ public class SumIntegers {
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
 //		insertData("SumIntegers.main(java.lang.String[]","java.lang.Integer","boxed");
+		
 		printSum(sumOfIntegerUptoN(10));
+//		if(true){
+//			return;
+//		}
+		Integer i=1;
 		long end = System.currentTimeMillis();
 		System.out.println("Time: " + (end - start));
 //		printData();
