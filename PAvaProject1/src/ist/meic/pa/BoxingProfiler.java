@@ -2,6 +2,7 @@ package ist.meic.pa;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Set;
 
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -15,7 +16,7 @@ import javassist.expr.MethodCall;
 
 public class BoxingProfiler {
 	private static String insertData2 = "static void insertData(String method, String type, String action);";
-	private static String body ="{}";
+//	private static String body ="{}";
 	private static String insertData = "{"			
 			+"		java.util.TreeMap types;"
 			+"		Integer count;"
@@ -35,7 +36,6 @@ public class BoxingProfiler {
 			+"			methods.put($2, types);"
 			+"			return;"
 			+"		}"
-//			+"		count =  types.get($3);"
 			+"		count =  (Integer) types.get($3);"
 			+"		if(count == null){"
 			+"			types.put($3, new Integer(1));"
@@ -43,6 +43,24 @@ public class BoxingProfiler {
 			+"		}"
 			+"		count = new Integer(count.intValue() + 1);"
 			+"		types.put($3, count);"
+			+"	}";
+	public static String printData2 ="static void printData();";
+	public static String printData ="{"
+			+"		java.util.Set methods= data.keySet();"
+			+"		for(java.util.Iterator i=methods.iterator(); i.hasNext();){"
+			+"			String method = (String) i.next();"
+			+"			java.util.TreeMap mapTypes = (java.util.TreeMap) data.get(method);	"
+			+"			java.util.Set keyTypes=mapTypes.keySet();"
+			+"			for(java.util.Iterator v=keyTypes.iterator(); v.hasNext();){"
+			+"				String type = (String) v.next();"
+			+"				java.util.TreeMap mapAction = (java.util.TreeMap) mapTypes.get(type);	"
+			+"				java.util.Set keyAction=mapAction.keySet();"
+			+"				for(java.util.Iterator j=keyAction.iterator(); j.hasNext();){"
+			+"					String action = (String) j.next();"
+			+"					System.out.println(method + \" \" + action + \" \" + (Integer) mapAction.get(action) + \" \" + type);"
+			+"				}	"			
+			+"			}"
+			+"		}"
 			+"	}";
 	
 		
@@ -95,43 +113,69 @@ public class BoxingProfiler {
 		return "NON_BOXING_FUNCTION";
 	}
 
+//	public static void injectInsertData(CtMethod m2) throws CannotCompileException{
+//		m2.instrument(new ExprEditor() {
+//    	    public void edit(final MethodCall m) throws CannotCompileException {   
+//    	        //Ver se a funçao chamada é uma funçao que faz boxing ou unboxing
+//    	    	String methodBoxingType=getAction(m.getClassName(),m.getMethodName());
+//    	    	if(!methodBoxingType.equals("NON_BOXING_FUNCTION")){
+//    	    		m.replace("{$_ = $proceed($$);"
+//    	        			+ "insertData(\""+ m2.getLongName()+"\",\""+ m.getClassName() + "\",\"" + methodBoxingType +"\");"
+//    	        			+ "System.out.println(\":::data\"+data+\":::\");}");
+//    	    		
+//    	    		  		
+//    	    	}
+//    	    }
+//		});
+//	}
 	
-	public static void main(String[] args) throws NotFoundException, CannotCompileException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, IOException{
-		ClassPool cp = ClassPool.getDefault();
-//		System.out.println(args[0]);
+	public static void injectInsertDataAndReturnData(CtMethod m2) throws CannotCompileException{
 		
-		
-		CtClass ct = cp.get(args[0]);
-		
-		CtField ctField = CtField.make("static java.util.TreeMap data = new java.util.TreeMap();",ct);
-		ct.addField(ctField);
-//		CtField ctField = CtField.make("static TreeMap<String, TreeMap<String,TreeMap<String,Integer>>> data = new TreeMap<String, TreeMap<String,TreeMap<String,Integer>>>();",ct);
-
-		
-		CtMethod ctMethod = CtNewMethod.make(insertData2, ct);
-		ct.addMethod(ctMethod);
-		ctMethod.setBody(body);
-		
-		for(CtMethod m2 : ct.getDeclaredMethods()){
 		m2.instrument(new ExprEditor() {
     	    public void edit(final MethodCall m) throws CannotCompileException {   
     	        //Ver se a funçao chamada é uma funçao que faz boxing ou unboxing
     	    	String methodBoxingType=getAction(m.getClassName(),m.getMethodName());
+    	    	
     	    	if(!methodBoxingType.equals("NON_BOXING_FUNCTION")){
-    	    		m.replace("{$_ = $proceed($$);"
-//    	        			+ "System.out.println(\""+m.getMethodName()+"\");"
-    	        			+ "insertData(\""+ m2.getLongName()+"\",\""+ m.getClassName() + "\",\"" + methodBoxingType +"\");"
-    	        			+ "System.out.println(\":::data\"+data+\":::\");}");
-    	    		
-    	    		  		
-    	    	}	    	
+    	    		m.replace("{$_ = $proceed($$);"+ "insertData(\""+ m2.getLongName()+"\",\""+ m.getClassName() 
+    	    			+ "\",\"" + methodBoxingType +"\");"
+    	    			+ "System.out.println(\":::data\"+data+\":::\");}");	  		
+    	    	}
+    	    	else{
+        	    	//Se o metodo chamado for um return então injectamos codigo antes para ele retornar o data antes de terminar o programa
+    	    		System.out.println(m.getMethodName());
+    	    		if(m.getMethodName().equals("return") && m2.getName().equals("main")){
+    	    			m.replace("{ printData(); $_ = $proceed($$);}");    	    	
+    	    		}
+    	    	}
+
     	    }
 		});
-			
-		}
+	}
 	
-		ctMethod = ct.getDeclaredMethod("insertData");
-		ctMethod.setBody(insertData);		
+	
+	
+	public static void main(String[] args) throws NotFoundException, CannotCompileException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, IOException{
+		ClassPool cp = ClassPool.getDefault();
+
+		CtClass ct = cp.get(args[0]);
+		
+		CtField ctField = CtField.make("static java.util.TreeMap data = new java.util.TreeMap();",ct);
+		ct.addField(ctField);
+		
+		CtMethod ctMethodID = CtMethod.make(insertData2, ct);
+		ct.addMethod(ctMethodID);
+		CtMethod ctMethodPD = CtMethod.make(printData2, ct);
+		ct.addMethod(ctMethodPD);
+		
+		for(CtMethod m2 : ct.getDeclaredMethods()){
+			injectInsertDataAndReturnData(m2);
+		}
+		ctMethodID = ct.getDeclaredMethod("insertData");
+		ctMethodID.setBody(insertData);	
+		
+		ctMethodID = ct.getDeclaredMethod("printData");
+		ctMethodID.setBody(printData);	
 
 		Class clazz = ct.toClass();
 		clazz.getMethod("main", String[].class).invoke(null,(Object) new String[0]);
