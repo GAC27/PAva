@@ -26,14 +26,20 @@ public class SumIntegers {
 //			types.put(action, new Integer(1));
 //			return;
 //		}
-//		types.put(action, count + 1);
+//		types.put(action, count + new Integer(1));
 //	}
 	
 	private static long sumOfIntegerUptoN(Integer n) {
 		Long sum = 0L;
+//		insertData("SumIntegers.sumOfIntegerUptoN(java.lang.Integer)","java.lang.Long","boxed");
 		for (int i = 0; i < n; i++) {
+//			insertData("SumIntegers.sumOfIntegerUptoN(java.lang.Integer)","java.lang.Integer","unboxed");
+//			insertData("SumIntegers.sumOfIntegerUptoN(java.lang.Integer)","java.lang.Long","unboxed");
+//			insertData("SumIntegers.sumOfIntegerUptoN(java.lang.Integer)","java.lang.Long","boxed");
 			sum += i;
+//			System.out.println("iteration:" + i);
 		}
+
 		return sum;
 	}
 
@@ -44,8 +50,13 @@ public class SumIntegers {
 
 	public static void main(String[] args) {
 		long start = System.currentTimeMillis();
-		printSum(sumOfIntegerUptoN(10));
+//		insertData("SumIntegers.main(java.lang.String[]","java.lang.Integer","boxed");
+		printSum(sumOfIntegerUptoN(100));
 		long end = System.currentTimeMillis();
 		System.out.println("Time: " + (end - start));
+//		System.out.println(new Integer(1) + new Integer(2));
 	}
+	
+	
+		
 }
