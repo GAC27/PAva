@@ -1,23 +1,20 @@
 package ist.meic.pa;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
-
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
-import javassist.CtNewMethod;
-import javassist.NotFoundException;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 
 public class BoxingProfiler {
-	private static String insertData2 = "static void insertData(String method, String type, String action);";
-//	private static String body ="{}";
-	private static String insertData = "{"			
+	private static final String INVALID_ACTION_TYPE = "NON_BOXING_FUNCTION";
+	private static final String BOXING_ACTION_TYPE = "boxed";
+	private static final String UNBOXING_ACTION_TYPE = "unboxed";
+	
+	private static final String insertFunction = "static void insertData(String method, String type, String action);";
+	private static final String insertFunctionBody = "{"			
 			+"		java.util.TreeMap types;"
 			+"		Integer count;"
 			+"		java.util.TreeMap methods = (java.util.TreeMap) data.get($1);"
@@ -44,145 +41,128 @@ public class BoxingProfiler {
 			+"		count = new Integer(count.intValue() + 1);"
 			+"		types.put($3, count);"
 			+"	}";
-	public static String printData2 ="static void printData();";
-	public static String printData ="{"
+	public static final String printFunction ="static void printData();";
+	public static final String printFunctionBody ="{"
 			+"		java.util.Set methods= data.keySet();"
 			+"		for(java.util.Iterator i=methods.iterator(); i.hasNext();){"
 			+"			String method = (String) i.next();"
-			+"			java.util.TreeMap mapTypes = (java.util.TreeMap) data.get(method);	"
+			+"			java.util.TreeMap mapTypes = (java.util.TreeMap) data.get(method);"
 			+"			java.util.Set keyTypes=mapTypes.keySet();"
 			+"			for(java.util.Iterator v=keyTypes.iterator(); v.hasNext();){"
 			+"				String type = (String) v.next();"
-			+"				java.util.TreeMap mapAction = (java.util.TreeMap) mapTypes.get(type);	"
+			+"				java.util.TreeMap mapAction = (java.util.TreeMap) mapTypes.get(type);"
 			+"				java.util.Set keyAction=mapAction.keySet();"
 			+"				for(java.util.Iterator j=keyAction.iterator(); j.hasNext();){"
 			+"					String action = (String) j.next();"
-			+"					System.out.println(method + \" \" + action + \" \" + (Integer) mapAction.get(action) + \" \" + type);"
+			+"					System.err.println(method + \" \" + action + \" \" + (Integer) mapAction.get(action) + \" \" + type);"
 			+"				}	"			
 			+"			}"
 			+"		}"
 			+"	}";
 	
-		
-	private static String getAction(String clazz, String methodName){
-		switch( clazz ) {
-		case "java.lang.Integer":
-			if (methodName.equals("valueOf")) {
-				return "boxed";
-			}else if(methodName.equals("intValue")){
-				return "unboxed";
-			}
-		case "java.lang.Boolean":
-			if (methodName.equals("valueOf")) {
-				return "boxed";
-			}else if(methodName.equals("booleanValue")){
-				return "unboxed";
-			}
-		case "java.lang.Float":
-			if (methodName.equals("valueOf")) {
-				return "boxed";
-			}else if(methodName.equals("floatValue")){
-				return "unboxed";
-			}
-		case "java.lang.Double":
-			if (methodName.equals("valueOf")) {
-				return "boxed";
-			}else if(methodName.equals("doubleValue")){
-				return "unboxed";
-			}
-		case "java.lang.Byte":
-			if (methodName.equals("valueOf")) {
-				return "boxed";
-			}else if(methodName.equals("byteValue")){
-				return "unboxed";
-			}
-		case "java.lang.Short":
-			if (methodName.equals("valueOf")) {
-				return "boxed";
-			}else if(methodName.equals("shortValue")){
-				return "unboxed";
-			}
-		case "java.lang.Long":
-			if (methodName.equals("valueOf")) {
-				return "boxed";
-			}else if(methodName.equals("longValue")){
-				return "unboxed";
-			}
+	private static String getAction(String clazz, String methodName) {
+		switch (clazz) {
+			case "java.lang.Integer":
+				if (methodName.equals("valueOf")) {
+					return BOXING_ACTION_TYPE;
+				} else if (methodName.equals("intValue")) {
+					return UNBOXING_ACTION_TYPE;
+				}
+			case "java.lang.Boolean":
+				if (methodName.equals("valueOf")) {
+					return BOXING_ACTION_TYPE;
+				} else if (methodName.equals("booleanValue")) {
+					return UNBOXING_ACTION_TYPE;
+				}
+			case "java.lang.Float":
+				if (methodName.equals("valueOf")) {
+					return BOXING_ACTION_TYPE;
+				} else if (methodName.equals("floatValue")) {
+					return UNBOXING_ACTION_TYPE;
+				}
+			case "java.lang.Double":
+				if (methodName.equals("valueOf")) {
+					return BOXING_ACTION_TYPE;
+				} else if (methodName.equals("doubleValue")) {
+					return UNBOXING_ACTION_TYPE;
+				}
+			case "java.lang.Byte":
+				if (methodName.equals("valueOf")) {
+					return BOXING_ACTION_TYPE;
+				} else if (methodName.equals("byteValue")) {
+					return UNBOXING_ACTION_TYPE;
+				}
+			case "java.lang.Short":
+				if (methodName.equals("valueOf")) {
+					return BOXING_ACTION_TYPE;
+				} else if (methodName.equals("shortValue")) {
+					return UNBOXING_ACTION_TYPE;
+				}
+			case "java.lang.Long":
+				if (methodName.equals("valueOf")) {
+					return BOXING_ACTION_TYPE;
+				} else if (methodName.equals("longValue")) {
+					return UNBOXING_ACTION_TYPE;
+				}
 		}
-		
-		return "NON_BOXING_FUNCTION";
+		return INVALID_ACTION_TYPE;
 	}
 
-//	public static void injectInsertData(CtMethod m2) throws CannotCompileException{
-//		m2.instrument(new ExprEditor() {
-//    	    public void edit(final MethodCall m) throws CannotCompileException {   
-//    	        //Ver se a funçao chamada é uma funçao que faz boxing ou unboxing
-//    	    	String methodBoxingType=getAction(m.getClassName(),m.getMethodName());
-//    	    	if(!methodBoxingType.equals("NON_BOXING_FUNCTION")){
-//    	    		m.replace("{$_ = $proceed($$);"
-//    	        			+ "insertData(\""+ m2.getLongName()+"\",\""+ m.getClassName() + "\",\"" + methodBoxingType +"\");"
-//    	        			+ "System.out.println(\":::data\"+data+\":::\");}");
-//    	    		
-//    	    		  		
-//    	    	}
-//    	    }
-//		});
-//	}
-	
-	public static void injectInsertData(CtMethod m2) throws CannotCompileException{
-		
-		m2.instrument(new ExprEditor() {
-    	    public void edit(final MethodCall m) throws CannotCompileException {   
-    	        //Ver se a funçao chamada é uma funçao que faz boxing ou unboxing
-    	    	String methodBoxingType=getAction(m.getClassName(),m.getMethodName());
-    	    	
-    	    	if(!methodBoxingType.equals("NON_BOXING_FUNCTION")){
-    	    		m.replace("{$_ = $proceed($$);"
-    	    				+"insertData(\""+ m2.getLongName()+"\",\""+ m.getClassName() + "\",\"" + methodBoxingType +"\");}");
-//    	    			+ "System.out.println(\":::data\"+data+\":::\");}");	  		
-    	    	}
-//    	    	else{
-//        	    	//Se o metodo chamado for um return então injectamos codigo antes para ele retornar o data antes de terminar o programa
-//    	    		if(m.getMethodName().equals("return") && m2.getName().equals("main")){
-//    	    			m.replace("{ printData(); $_ = $proceed($$);}");    	    	
-//    	    		}
-//    	    	}
+	private static void injectInsertData(CtMethod ctMethod) throws CannotCompileException {
+		ctMethod.instrument(new ExprEditor() {
+			public void edit(final MethodCall methodCall) throws CannotCompileException {
+				// Ver se a funçao chamada é uma funçao que faz boxing ou unboxing
+				String methodBoxingType = getAction(methodCall.getClassName(), methodCall.getMethodName());
 
-    	    }
+				if (!methodBoxingType.equals(INVALID_ACTION_TYPE)) {
+					methodCall.replace("{$_ = $proceed($$);" + "insertData(\"" + ctMethod.getLongName() + "\",\"" + methodCall.getClassName()
+							+ "\",\"" + methodBoxingType + "\");}");
+				}
+			}
 		});
 	}
 	
-	
-	
-	public static void main(String[] args) throws NotFoundException, CannotCompileException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, IOException{
-		ClassPool cp = ClassPool.getDefault();
+	private static void intrumentClass(CtClass ctClass) {
+		try {
+			CtField ctField = CtField.make("static java.util.TreeMap data = new java.util.TreeMap();", ctClass);
+			ctClass.addField(ctField);
 
-		CtClass ct = cp.get(args[0]);
-		
-		CtField ctField = CtField.make("static java.util.TreeMap data = new java.util.TreeMap();",ct);
-		ct.addField(ctField);
-		
-		CtMethod ctMethodID = CtMethod.make(insertData2, ct);
-		ct.addMethod(ctMethodID);
-		CtMethod ctMethodPD = CtMethod.make(printData2, ct);
-		ct.addMethod(ctMethodPD);
-		
-		for(CtMethod m2 : ct.getDeclaredMethods()){
-			injectInsertData(m2);
-			
-			if(m2.getName().equals("main")){
-				m2.insertAfter("printData();");
+			CtMethod ctMethodID = CtMethod.make(insertFunction, ctClass);
+			ctClass.addMethod(ctMethodID);
+			CtMethod ctMethodPD = CtMethod.make(printFunction, ctClass);
+			ctClass.addMethod(ctMethodPD);
+
+			for (CtMethod ctMethod : ctClass.getDeclaredMethods()) {
+				injectInsertData(ctMethod);
+
+				if (ctMethod.getName().equals("main")) {
+					ctMethod.insertAfter("printData();");
+				}
 			}
-		}
-		ctMethodID = ct.getDeclaredMethod("insertData");
-		ctMethodID.setBody(insertData);	
-		
-		ctMethodID = ct.getDeclaredMethod("printData");
-		ctMethodID.setBody(printData);	
+			
+			ctMethodID = ctClass.getDeclaredMethod("insertData");
+			ctMethodID.setBody(insertFunctionBody);
 
-		Class clazz = ct.toClass();
-		clazz.getMethod("main", String[].class).invoke(null,(Object) new String[0]);		
+			ctMethodPD = ctClass.getDeclaredMethod("printData");
+			ctMethodPD.setBody(printFunctionBody);
+		} catch (Exception e) {
+			System.out.println("Something went wrong Intrumenting Class");
+		}
+	}
+
+	public static void main(String[] args) {
+		try{
+			ClassPool cp = ClassPool.getDefault();
+			
+			CtClass ctClass = cp.get(args[0]);
+			intrumentClass(ctClass);
+	
+			Class clazz = ctClass.toClass();
+			clazz.getMethod("main", String[].class).invoke(null, (Object) new String[0]);
 		
+		}catch(Exception e) {
+			System.err.println("Something didn't go as planned");
+		}
 	}
 	
 }
