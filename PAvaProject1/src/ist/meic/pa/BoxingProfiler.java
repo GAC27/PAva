@@ -156,12 +156,15 @@ public class BoxingProfiler {
 			
 			CtClass ctClass = cp.get(args[0]);
 			intrumentClass(ctClass);
+			
+			String[] restArgs = new String[args.length - 1];
+			System.arraycopy(args, 1, restArgs, 0, restArgs.length);
 	
 			Class clazz = ctClass.toClass();
-			clazz.getMethod("main", String[].class).invoke(null, (Object) new String[0]);
+			clazz.getMethod("main", args.getClass()).invoke(null,new Object[]{restArgs});
 		
 		}catch(Exception e) {
-			System.err.println("Something didn't go as planned");
+			System.err.println(e.getMessage());
 		}
 	}
 	
