@@ -68,6 +68,12 @@ public class BoxingProfiler {
 				} else if (methodName.equals("intValue")) {
 					return UNBOXING_ACTION_TYPE;
 				}
+			case "java.lang.Character":
+				if (methodName.equals("valueOf")) {
+					return BOXING_ACTION_TYPE;
+				} else if (methodName.equals("charValue")) {
+					return UNBOXING_ACTION_TYPE;
+				}
 			case "java.lang.Boolean":
 				if (methodName.equals("valueOf")) {
 					return BOXING_ACTION_TYPE;
