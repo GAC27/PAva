@@ -13,6 +13,13 @@ public class BoxingProfiler {
 	private static final String BOXING_ACTION_TYPE = "boxed";
 	private static final String UNBOXING_ACTION_TYPE = "unboxed";
 	
+	/**
+	 * 
+	 * Function responsible for inserting the data in the TreeMap of the profiled program
+	 * @param method
+	 * @param type
+	 * @param action
+	 */
 	private static final String insertFunction = "static void insertData(String method, String type, String action);";
 	private static final String insertFunctionBody = "{"			
 			+"		java.util.TreeMap types;"
@@ -41,6 +48,9 @@ public class BoxingProfiler {
 			+"		count = new Integer(count.intValue() + 1);"
 			+"		types.put($3, count);"
 			+"	}";
+	/**
+	 * Function to print the results
+	 */
 	public static final String printFunction ="static void printData();";
 	public static final String printFunctionBody ="{"
 			+"		java.util.Set methods= data.keySet();"
@@ -60,6 +70,16 @@ public class BoxingProfiler {
 			+"		}"
 			+"	}";
 	
+	
+	/**
+	 * Responsible for determining the action type of a method passed as an argument.
+	 * If function is a boxing operation returns BOXING_ACTION_TYPE;
+	 * If function is a unboxing operation returns UNBOXING_ACTION_TYPE;
+	 * Else returns INVALID_ACTION_TYPE.
+	 * @param clazz
+	 * @param methodName
+	 * @return
+	 */
 	private static String getAction(String clazz, String methodName) {
 		switch (clazz) {
 			case "java.lang.Integer":
@@ -114,6 +134,11 @@ public class BoxingProfiler {
 		return INVALID_ACTION_TYPE;
 	}
 
+	/**
+	 * Injects a call to the insertData method after the execution of the method passed as an argument
+	 * @param ctMethod
+	 * @throws CannotCompileException
+	 */
 	private static void injectInsertData(CtMethod ctMethod) throws CannotCompileException {
 		ctMethod.instrument(new ExprEditor() {
 			public void edit(final MethodCall methodCall) throws CannotCompileException {
@@ -128,6 +153,11 @@ public class BoxingProfiler {
 		});
 	}
 	
+	/**
+	 * Injects the code for the TreeMap, insertData and printData functions;
+	 * Searches for boxing and unboxing operations in methods and calls function injectInsertData with that method passed as an argument
+	 * @param ctClass
+	 */
 	private static void intrumentClass(CtClass ctClass) {
 		try {
 			CtField ctField = CtField.make("static java.util.TreeMap data = new java.util.TreeMap();", ctClass);
