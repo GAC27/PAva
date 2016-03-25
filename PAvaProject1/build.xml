@@ -1,4 +1,4 @@
-<project name="PavaLab1" default="generateJar" basedir=".">
+<project name="PAvaProj1" default="generateJar" basedir=".">
 	<description>
     Project 1
   </description>
