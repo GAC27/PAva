@@ -12,6 +12,8 @@ public class BoxingProfilerExtended {
 	private static final String INVALID_ACTION_TYPE = "NON_BOXING_FUNCTION";
 	private static final String BOXING_ACTION_TYPE = "boxed";
 	private static final String UNBOXING_ACTION_TYPE = "unboxed";
+	static java.util.TreeMap replacementData = new java.util.TreeMap();
+	
 	
 	/**
 	 * 
@@ -69,6 +71,67 @@ public class BoxingProfilerExtended {
 			+"			}"
 			+"		}"
 			+"	}";
+	
+	
+	/**
+	 * 
+	 * Function responsible for inserting the data in the TreeMap of boxing operations replaced
+	 * @param method
+	 * @param type
+	 * @param action
+	 */
+	static void insertReplacementData(String method, String type, String action)
+	{
+			java.util.TreeMap types;
+			Integer count;
+			java.util.TreeMap methods = (java.util.TreeMap) replacementData.get(method);
+			if(methods == null){
+				methods=new java.util.TreeMap();
+				types = new java.util.TreeMap();
+				types.put(action, new Integer(1));
+				methods.put(type, types);
+				replacementData.put(method, methods);
+				return;
+			}
+			types = (java.util.TreeMap) methods.get(type);
+				if(types == null){
+					types = new java.util.TreeMap();
+					types.put(action, new Integer(1));
+					methods.put(type, types);
+					return;
+				}
+				count =  (Integer) types.get(action);
+				if(count == null){
+					types.put(action, new Integer(1));
+					return;
+				}
+				count = new Integer(count.intValue() + 1);
+				types.put(action, count);
+			}
+	/**
+	 * Function to print the results of the replacement
+	 */
+	static void printReplacementData(){
+		java.util.Set methods= replacementData.keySet();
+		
+		for(java.util.Iterator i=methods.iterator(); i.hasNext();){
+			String method = (String) i.next();
+			java.util.TreeMap mapTypes = (java.util.TreeMap) replacementData.get(method);	
+			java.util.Set keyTypes=mapTypes.keySet();
+			
+			for(java.util.Iterator v=keyTypes.iterator(); v.hasNext();){
+				String type = (String) v.next();
+				java.util.TreeMap mapAction = (java.util.TreeMap) mapTypes.get(type);	
+				java.util.Set keyAction=mapAction.keySet();
+				
+				for(java.util.Iterator j=keyAction.iterator(); j.hasNext();){
+					String action = (String) j.next();
+					System.out.println("Replaced boxing operation in "+ method+ " " + (Integer) mapAction.get(action) + " times for type: " + type);
+				}				
+			}
+		}
+		
+	}
 	
 	
 	/**
@@ -150,7 +213,7 @@ public class BoxingProfilerExtended {
 				if (!methodBoxingType.equals(INVALID_ACTION_TYPE)) {
 					if(methodBoxingType.equals(BOXING_ACTION_TYPE)){
 						methodCall.replace("{$_ = new "+className+"($$);}");
-						System.err.println("Replaced boxing operation of class: "+className+" in method "+ctMethod.getLongName());
+						insertReplacementData(ctMethod.getLongName() , className, methodBoxingType);
 					}
 					else {
 						methodCall.replace("{$_ = $proceed($$);" + "insertData(\"" + ctMethod.getLongName() + "\",\"" + className
@@ -210,6 +273,7 @@ public class BoxingProfilerExtended {
 	
 			Class clazz = ctClass.toClass();
 			clazz.getMethod("main", args.getClass()).invoke(null,new Object[]{restArgs});
+			printReplacementData();
 		
 		}catch(Exception e) {
 			System.err.println(e.getMessage());
