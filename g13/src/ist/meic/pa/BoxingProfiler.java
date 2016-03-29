@@ -189,7 +189,7 @@ public class BoxingProfiler {
 	public static void main(String[] args) {
 		try{
 			ClassPool cp = ClassPool.getDefault();
-			
+			cp.appendClassPath(".");
 			CtClass ctClass = cp.get(args[0]);
 			intrumentClass(ctClass);
 			
@@ -200,7 +200,7 @@ public class BoxingProfiler {
 			clazz.getMethod("main", args.getClass()).invoke(null,new Object[]{restArgs});
 		
 		}catch(Exception e) {
-			System.err.println("Something went wrong");
+			System.err.println(e.getMessage());
 		}
 	}
 	

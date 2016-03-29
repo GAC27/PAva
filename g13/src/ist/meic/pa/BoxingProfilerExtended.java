@@ -8,7 +8,7 @@ import javassist.CtMethod;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
 
-public class BoxingProfiler {
+public class BoxingProfilerExtended {
 	private static final String INVALID_ACTION_TYPE = "NON_BOXING_FUNCTION";
 	private static final String BOXING_ACTION_TYPE = "boxed";
 	private static final String UNBOXING_ACTION_TYPE = "unboxed";
@@ -135,27 +135,37 @@ public class BoxingProfiler {
 	}
 
 	/**
+	 * Replaces all calls to boxing method for the respective creation of a reference object or
 	 * Injects a call to the insertData method after the execution of the method passed as an argument
 	 * @param ctMethod
 	 * @throws CannotCompileException
 	 */
-	private static void injectInsertData(CtMethod ctMethod) throws CannotCompileException {
+	private static void injectInsertDataAndReplaceBoxing(CtMethod ctMethod) throws CannotCompileException {
 		ctMethod.instrument(new ExprEditor() {
 			public void edit(final MethodCall methodCall) throws CannotCompileException {
 				// Ver se a funçao chamada é uma funçao que faz boxing ou unboxing
 				String methodBoxingType = getAction(methodCall.getClassName(), methodCall.getMethodName());
+				String className=methodCall.getClassName();
 
 				if (!methodBoxingType.equals(INVALID_ACTION_TYPE)) {
-					methodCall.replace("{$_ = $proceed($$);" + "insertData(\"" + ctMethod.getLongName() + "\",\"" + methodCall.getClassName()
+					if(methodBoxingType.equals(BOXING_ACTION_TYPE)){
+						methodCall.replace("{$_ = new "+className+"($$);}");
+						System.err.println("Replaced boxing operation of class: "+className+" in method "+ctMethod.getLongName());
+					}
+					else {
+						methodCall.replace("{$_ = $proceed($$);" + "insertData(\"" + ctMethod.getLongName() + "\",\"" + className
 							+ "\",\"" + methodBoxingType + "\");}");
+					}
 				}
 			}
 		});
 	}
 	
+	
 	/**
 	 * Injects the code for the TreeMap, insertData and printData functions;
-	 * Searches for boxing and unboxing operations in methods and calls function injectInsertData with that method passed as an argument
+	 * Searches for unboxing operations in methods and calls function injectInsertData with that method passed as an argument;
+	 * Searches for boxing operations in methods and replaces operation for the respective creation a reference object
 	 * @param ctClass
 	 */
 	private static void intrumentClass(CtClass ctClass) {
@@ -169,7 +179,7 @@ public class BoxingProfiler {
 			ctClass.addMethod(ctMethodPD);
 
 			for (CtMethod ctMethod : ctClass.getDeclaredMethods()) {
-				injectInsertData(ctMethod);
+				injectInsertDataAndReplaceBoxing(ctMethod);
 
 				if (ctMethod.getName().equals("main")) {
 					ctMethod.insertAfter("printData();");
@@ -182,14 +192,16 @@ public class BoxingProfiler {
 			ctMethodPD = ctClass.getDeclaredMethod("printData");
 			ctMethodPD.setBody(printFunctionBody);
 		} catch (Exception e) {
-			System.out.println("Something went wrong Intrumenting Class");
+			System.err.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
 	public static void main(String[] args) {
 		try{
+
 			ClassPool cp = ClassPool.getDefault();
-			
+			cp.appendClassPath(".");
 			CtClass ctClass = cp.get(args[0]);
 			intrumentClass(ctClass);
 			
@@ -200,7 +212,7 @@ public class BoxingProfiler {
 			clazz.getMethod("main", args.getClass()).invoke(null,new Object[]{restArgs});
 		
 		}catch(Exception e) {
-			System.err.println("Something went wrong");
+			System.err.println(e.getMessage());
 		}
 	}
 	

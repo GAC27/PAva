@@ -79,7 +79,7 @@ public class SumIntegers {
 //		insertData("SumIntegers.main(java.lang.String[]","java.lang.Integer","boxed");
 		//int value =Integer.parseInt(args[0]);
 		
-		printSum(sumOfIntegerUptoN(10));
+		printSum(sumOfIntegerUptoN(500));
 		
 		//System.out.println("Test: " + args[1]);
 //		if(true){
