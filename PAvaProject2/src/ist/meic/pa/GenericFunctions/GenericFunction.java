@@ -1,21 +1,9 @@
 package ist.meic.pa.GenericFunctions;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-
-//A funçao generica tem de conter todas as especificações do metodo generico
-//Para escolher o metodo a executar(effective Method) temos de fazer os seguintes passos:
-//-Selecionar os metodos adequados aos argumentos passados(cujos argumentos façam "wrap")
-//-Ordenar os metodos por ordem de precedencia do mais especifico para o menos especifico
-//-Combinar os metodos aplicaveis(1 primário , multiplos auxiliares) e produzir o effective method
-//
-//usando como argumentos a funçao generica original e os argumentos da chamada a funçao
-//Se existir um Effective Method executamo-lo, caso contrário, chamamos "no-applicable-method"
-
-//NOTA: No nosso caso a GenericFunction pode ter um número arbitrário de args
-//NOTA: Possivelmente faria sentido em vez de termos um array de metodos termos um mapa cuja chave é
-//o numero de argumentos do GFMethod e cujo valor é um array de GFMethods
-
-
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -24,6 +12,7 @@ import java.util.ArrayList;
  *-Selecionar os metodos adequados aos argumentos passados(cujos argumentos façam "wrap")
  *-Ordenar os metodos por ordem de precedencia do mais especifico para o menos especifico
  *-Combinar os metodos aplicaveis(1 primário , multiplos auxiliares) e produzir o effective method
+ *
  *usando como argumentos a funçao generica original e os argumentos da chamada a funçao
  *Se existir um Effective Method executamo-lo, caso contrário, chamamos "no-applicable-method"
  *
@@ -34,21 +23,20 @@ import java.util.ArrayList;
  */
 public class GenericFunction {
 	/**
-	 * Lista de GFMethods primários desta função genérica
+	 * Mapa de GFMethods primários desta função genérica
 	 */
-	ArrayList<GFMethod> gfMethodsPrimary;
+	Map<String,GFMethod> gfMethodsPrimary = new HashMap<String,GFMethod>();
 	
 	/**
-	 * Lista de GFMethods auxiliares(before) desta função genérica
+	 * Mapa de GFMethods auxiliares(before) desta função genérica
 	 */
-	ArrayList<GFMethod> gfMethodsBefore;
+	Map<String,GFMethod> gfMethodsBefore = new HashMap<String,GFMethod>();
 		
 	/**
-	 * Lista de GFMethods auxiliares(after) desta função genérica
+	 * Mapa de GFMethods auxiliares(after) desta função genérica
 	 */
-	ArrayList<GFMethod> gfMethodsAfter;
-	
-	
+	Map<String,GFMethod> gfMethodsAfter = new HashMap<String,GFMethod>();
+
 	/**
 	 * Nome do metodo Generico
 	 */
@@ -60,9 +48,6 @@ public class GenericFunction {
 	 */
 	GenericFunction(String GenFunName){
 		GFName=GenFunName;
-		gfMethodsPrimary=new ArrayList<GFMethod>();
-		gfMethodsBefore=new ArrayList<GFMethod>();
-		gfMethodsAfter=new ArrayList<GFMethod>();
 	}
 	
 	/**
@@ -106,8 +91,49 @@ public class GenericFunction {
 		
 		return gfMethodsAfter.add(newGFMethod);
 	}
+		
+	Object call(Object... args){
+		ArrayList<Class> argsType=new ArrayList<Class>();
+		for(Object o: args){
+			//Ver tipo de cada argumento e meter ordenados os tipos dos args para dentro do Array List.
+			argsType.add(o.getClass());
+		}
+		ArrayList<GFMethod> beforeAMethods=getBeforeAplicableMethods(argsType);
+		ArrayList<GFMethod> afterAMethods=getAfterAplicableMethods(argsType);
+		ArrayList<GFMethod> primaryAMethods=getPrimaryAplicableMethods(argsType);
+		return callEffectiveMethod();
+	}
 	
 	
+	
+	
+	private ArrayList<GFMethod> getBeforeAplicableMethods(/*ArrayList tipo_dos_args*/){
+		return null;
+	}
+	
+	private ArrayList<GFMethod> getAfterAplicableMethods(/*ArrayList tipo_dos_args*/){
+		return null;
+	}
+	
+	private ArrayList<GFMethod> getPrimaryAplicableMethods(/*ArrayList tipo_dos_args*/){
+		return null;
+	}
+	
+	private ArrayList<GFMethod> sortBeforeAplicableMethods(/*ArrayList tipo_dos_args*/){
+		return null;
+	}
+	
+	private ArrayList<GFMethod> sortAfterAplicableMethods(/*ArrayList tipo_dos_args*/){
+		return null;
+	}
+	
+	private ArrayList<GFMethod> getMostSpecificPrimaryMethod(/*ArrayList tipo_dos_args*/){
+		return null;
+	}
+	
+	private Object callEffectiveMethod(/*ArrayList beforeMethods, GFMethod primary, ArrayList afterMethods*/){
+		return null;
+	}
 	
 }
 	
