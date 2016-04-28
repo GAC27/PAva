@@ -1,8 +1,8 @@
 package ist.meic.pa.GenericFunctions;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,11 +56,12 @@ public class GenericFunction {
 	 * @param newGFMethod
 	 */
 	boolean addMethod(GFMethod newGFMethod){
-		for(GFMethod temp: gfMethodsPrimary){
+//		for(GFMethod temp: gfMethodsPrimary){
 //			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
-		}
+//		}
 		
-		return gfMethodsPrimary.add(newGFMethod);
+//		return gfMethodsPrimary.add(newGFMethod);
+		return false;
 	}
 	
 	
@@ -70,11 +71,13 @@ public class GenericFunction {
 	 * @param newGFMethod
 	 */
 	boolean addBeforeMethod(GFMethod newGFMethod){
-		for(GFMethod temp: gfMethodsPrimary){
+//		for(GFMethod temp: gfMethodsPrimary){
 //			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
-		}
+//		}
 		
-		return gfMethodsBefore.add(newGFMethod);
+//		return gfMethodsBefore.add(newGFMethod);
+		return false;
+
 	}
 	
 	
@@ -85,22 +88,23 @@ public class GenericFunction {
 	 * @param newGFMethod
 	 */
 	boolean addAfterMethod(GFMethod newGFMethod){
-		for(GFMethod temp: gfMethodsPrimary){
+//		for(GFMethod temp: gfMethodsPrimary){
 //			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
-		}
+//		}
 		
-		return gfMethodsAfter.add(newGFMethod);
+//		return gfMethodsAfter.add(newGFMethod);
+		return false;
 	}
 		
 	Object call(Object... args){
-		ArrayList<Class> argsType=new ArrayList<Class>();
+		ArrayList<Class> argsType = new ArrayList<Class>();
 		for(Object o: args){
 			//Ver tipo de cada argumento e meter ordenados os tipos dos args para dentro do Array List.
 			argsType.add(o.getClass());
 		}
-		ArrayList<GFMethod> beforeAMethods=getBeforeAplicableMethods(argsType);
-		ArrayList<GFMethod> afterAMethods=getAfterAplicableMethods(argsType);
-		ArrayList<GFMethod> primaryAMethods=getPrimaryAplicableMethods(argsType);
+//		ArrayList<GFMethod> beforeAMethods=getBeforeAplicableMethods(argsType);
+//		ArrayList<GFMethod> afterAMethods=getAfterAplicableMethods(argsType);
+//		ArrayList<GFMethod> primaryAMethods=getPrimaryAplicableMethods(argsType);
 		return callEffectiveMethod();
 	}
 	
@@ -131,8 +135,19 @@ public class GenericFunction {
 		return null;
 	}
 	
-	private Object callEffectiveMethod(/*ArrayList beforeMethods, GFMethod primary, ArrayList afterMethods*/){
-		return null;
+	private Object callEffectiveMethod(List<GFMethod> beforeMethods, GFMethod primary, List<GFMethod> afterMethods, Object... args){
+		Thread.cur
+		for(GFMethod method : beforeMethods){
+			method.proxyCall(args);
+		}
+		
+		Object primaryReturnValue = primary.proxyCall(args);
+		
+		for(GFMethod method : afterMethods){
+			method.proxyCall(args);
+		}
+		
+		return primaryReturnValue;
 	}
 	
 }
