@@ -107,27 +107,27 @@ public class GenericFunction {
 	
 	
 	
-	private ArrayList<GFMethod> getBeforeAplicableMethods(/*ArrayList tipo_dos_args*/){
+	private ArrayList<GFMethod> getBeforeAplicableMethods(ArrayList<Class> argsType){
 		return null;
 	}
 	
-	private ArrayList<GFMethod> getAfterAplicableMethods(/*ArrayList tipo_dos_args*/){
+	private ArrayList<GFMethod> getAfterAplicableMethods(ArrayList<Class> argsType){
 		return null;
 	}
 	
-	private ArrayList<GFMethod> getPrimaryAplicableMethods(/*ArrayList tipo_dos_args*/){
+	private ArrayList<GFMethod> getPrimaryAplicableMethods(ArrayList<Class> argsType){
 		return null;
 	}
 	
-	private ArrayList<GFMethod> sortBeforeAplicableMethods(/*ArrayList tipo_dos_args*/){
+	private ArrayList<GFMethod> sortBeforeAplicableMethods(ArrayList<Class> argsType){
 		return null;
 	}
 	
-	private ArrayList<GFMethod> sortAfterAplicableMethods(/*ArrayList tipo_dos_args*/){
+	private ArrayList<GFMethod> sortAfterAplicableMethods(ArrayList<Class> argsType){
 		return null;
 	}
 	
-	private ArrayList<GFMethod> getMostSpecificPrimaryMethod(/*ArrayList tipo_dos_args*/){
+	private ArrayList<GFMethod> getMostSpecificPrimaryMethod(ArrayList<Class> argsType){
 		return null;
 	}
 	
