@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ist.meic.pa.GenericFunctions.Exceptions.GenericFunctionIllegalArgumentException;
+
 /**
  * 
  *A funçao generica tem de conter todas as especificações do metodo generico
@@ -17,28 +19,30 @@ import java.util.Map;
  *Se existir um Effective Method executamo-lo, caso contrário, chamamos "no-applicable-method"
  *
  *NOTA: No nosso caso a GenericFunction pode ter um número arbitrário de args
- *NOTA: Possivelmente faria sentido em vez de termos um array de metodos termos um mapa cuja chave é
- *o numero de argumentos do GFMethod e cujo valor é um array de GFMethods
  * 
  */
 public class GenericFunction {
 	/**
-	 * Mapa de GFMethods primários desta função genérica
+	 * Mapa de GFMethods primários desta função genérica 
+	 * Chave é o numero de argumentos
 	 */
-	Map<String,GFMethod> gfMethodsPrimary = new HashMap<String,GFMethod>();
+	Map<Integer,ArrayList<GFMethod>> gfMethodsPrimary = new HashMap<Integer,ArrayList<GFMethod>>();
 	
 	/**
 	 * Mapa de GFMethods auxiliares(before) desta função genérica
+	 * Chave é o numero de argumentos
 	 */
-	Map<String,GFMethod> gfMethodsBefore = new HashMap<String,GFMethod>();
+	Map<Integer,ArrayList<GFMethod>> gfMethodsBefore = new HashMap<Integer,ArrayList<GFMethod>>();
 		
 	/**
 	 * Mapa de GFMethods auxiliares(after) desta função genérica
+	 * Chave é o numero de argumentos
 	 */
-	Map<String,GFMethod> gfMethodsAfter = new HashMap<String,GFMethod>();
+	Map<Integer,ArrayList<GFMethod>> gfMethodsAfter = new HashMap<Integer,ArrayList<GFMethod>>();
 
 	/**
 	 * Nome do metodo Generico
+	 * Chave é o numero de argumentos
 	 */
 	final String GFName;
 	
@@ -55,15 +59,23 @@ public class GenericFunction {
 	 * Verifica se já existe um metodoPrimario com o numero e tipos de argumentos iguais. Se existir não adiciona o metodo, se não existir adiciona
 	 * @param newGFMethod
 	 */
-	public boolean addMethod(GFMethod newGFMethod){
-		for(GFMethod temp: gfMethodsPrimary){
-//			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
-//			if(já existe com args iguais ){
-//			System.err.println("funcao ja existe");
-//		}
+	public void addMethod(GFMethod newGFMethod){
+		ArrayList<GFMethod> gfMethods=gfMethodsPrimary.get(newGFMethod.getArgs().size());
+		if(gfMethods == null){
+			gfMethods=new ArrayList<GFMethod>();
+			gfMethods.add(newGFMethod);
+			gfMethodsPrimary.put(newGFMethod.getArgs().size(), gfMethods) ;
 		}
-//		return gfMethodsPrimary.add(newGFMethod);
-		return false;
+		else{
+//			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
+			for(int i=0; i<gfMethods.size(); i++){
+				if(newGFMethod.getArgsString().equals(gfMethods.get(i).getArgsString())){
+					gfMethods.set(i, newGFMethod);
+					return;
+				}
+			}
+			gfMethods.add(newGFMethod);
+		}		
 	}
 	
 	
@@ -72,17 +84,23 @@ public class GenericFunction {
 	 * Verifica se já existe um metodoPrimario com o numero e tipos de argumentos iguais. Se existir não adiciona o metodo, se não existir adiciona
 	 * @param newGFMethod
 	 */
-	public boolean addBeforeMethod(GFMethod newGFMethod){
-		for(GFMethod temp: gfMethodsPrimary){
-//			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
-//			if(já existe com args iguais ){
-//				System.err.println("funcao ja existe");
-//			}
+	public void addBeforeMethod(GFMethod newGFMethod){
+		ArrayList<GFMethod> gfMethods=gfMethodsBefore.get(newGFMethod.getArgs().size());
+		if(gfMethods == null){
+			gfMethods=new ArrayList<GFMethod>();
+			gfMethods.add(newGFMethod);
+			gfMethodsBefore.put(newGFMethod.getArgs().size(), gfMethods) ;
 		}
-		
-//		return gfMethodsBefore.add(newGFMethod);
-		return false;
-
+		else{
+//			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
+			for(GFMethod temp: gfMethods){
+				if(newGFMethod.getArgsString().equals(temp.getArgsString())){
+					System.err.println("Funcao ja existe para esse tipo de argumentos: "+newGFMethod.getArgsString());
+					return;
+				}
+			}
+			gfMethods.add(newGFMethod);
+		}
 	}
 	
 	
@@ -93,15 +111,23 @@ public class GenericFunction {
 	 * @param newGFMethod
 	 */
 
-	public boolean addAfterMethod(GFMethod newGFMethod){
-		for(GFMethod temp: gfMethodsPrimary){
-//			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
-//			if(já existe com args iguais ){
-//			System.err.println("funcao ja existe");
-//		}
+	public void addAfterMethod(GFMethod newGFMethod){
+		ArrayList<GFMethod> gfMethods=gfMethodsAfter.get(newGFMethod.getArgs().size());
+		if(gfMethods == null){
+			gfMethods=new ArrayList<GFMethod>();
+			gfMethods.add(newGFMethod);
+			gfMethodsAfter.put(newGFMethod.getArgs().size(), gfMethods) ;
 		}
-//		return gfMethodsAfter.add(newGFMethod);
-		return false;
+		else{
+//			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
+			for(GFMethod temp: gfMethods){
+				if(newGFMethod.getArgsString().equals(temp.getArgsString())){
+					System.err.println("Funcao ja existe para esse tipo de argumentos: "+newGFMethod.getArgsString());
+					return;
+				}
+			}
+			gfMethods.add(newGFMethod);
+		}
 	}
 		
 
@@ -115,15 +141,24 @@ public class GenericFunction {
 
 		ArrayList<GFMethod> beforeAMethods=getBeforeAplicableMethods(argsType);
 		ArrayList<GFMethod> afterAMethods=getAfterAplicableMethods(argsType);
-//		try{
+		try{
+		
 			ArrayList<GFMethod> primaryAMethods=getPrimaryAplicableMethods(argsType);
-//		}
-//		catch(A nossa excepção){
-//			System.out.println("Exception in thread "+ Thread.currentThread().getName()+ "java.lang.IllegalArgumentException:
-//				No methods for generic function"  with args [[1, 2], 3]
-//				of classes [class [Ljava.lang.Object;, class java.lang.Integer]
-//
-//		}
+		
+		}
+		catch(GenericFunctionIllegalArgumentException e){
+			System.out.print("Exception in thread "+ Thread.currentThread().getName()+ " java.lang.IllegalArgumentException:" 
+				+"No methods for generic function" + GFName + "with args [");
+			for(Object o: args){
+				System.out.print(o + ",");
+			}
+			System.out.print(" of classes [");
+			for(Object o: args){
+				System.out.print(o.getClass() + ",");
+			}
+			System.out.println("]");
+		}
+		
 		beforeAMethods= sortBeforeAplicableMethods(argsType);
 		afterAMethods= sortAfterAplicableMethods(argsType);
 		GFMethod primaryEffectiveMethod= getEffectivePrimaryMethod(argsType);
@@ -134,18 +169,109 @@ public class GenericFunction {
 	
 	
 	
-	
+	/**
+	 * Retorna uma lista com os metodos auxiliares do tipo before aplicaveis aos argumentos passados na chamada da função.
+	 * @param argsType
+	 * @return
+	 * @throws GenericFunctionIllegalArgumentException 
+	 */
 	private ArrayList<GFMethod> getBeforeAplicableMethods(ArrayList<Class> argsType){
-		return null;
+		boolean isAplicable;
+		ArrayList<GFMethod> aplicableGFMethods=new ArrayList<GFMethod>();
+		ArrayList<GFMethod> gfmBefore=gfMethodsBefore.get(argsType.size());
+		if(gfmBefore!=null){
+			for(GFMethod gfmTemp: gfmBefore){
+				isAplicable=true;
+				for(int i=0; i < argsType.size(); i++){
+					if (!((gfmTemp.getArg(i)).isAssignableFrom(argsType.get(i)))) {
+						isAplicable=false;
+						break;
+					}	
+					
+				}
+				if(isAplicable){
+					aplicableGFMethods.add(gfmTemp);
+				}
+			}
+			return aplicableGFMethods;
+		}
+		
+		else{
+			return new ArrayList<GFMethod>();
+		}
+		
 	}
 	
+	/**
+	 * Retorna uma lista com os metodos auxiliares do tipo before aplicaveis aos argumentos passados na chamada da função.
+	 * @param argsType
+	 * @return
+	 * @throws GenericFunctionIllegalArgumentException 
+	 */
 	private ArrayList<GFMethod> getAfterAplicableMethods(ArrayList<Class> argsType){
-		return null;
+		boolean isAplicable;
+		ArrayList<GFMethod> aplicableGFMethods=new ArrayList<GFMethod>();
+		ArrayList<GFMethod> gfmAfter=gfMethodsAfter.get(argsType.size());
+		if(gfmAfter!=null){
+			for(GFMethod gfmTemp:gfmAfter){
+				isAplicable=true;
+				for(int i=0; i < argsType.size(); i++){
+					if (!(gfmTemp.getArg(i)).isAssignableFrom(argsType.get(i))) {
+						isAplicable=false;
+						break;
+					}	
+					
+				}
+				if(isAplicable){
+					aplicableGFMethods.add(gfmTemp);
+				}
+			}
+			return aplicableGFMethods;
+		}
+		
+		else{
+			return new ArrayList<GFMethod>();
+		}
 	}
 	
-	private ArrayList<GFMethod> getPrimaryAplicableMethods(ArrayList<Class> argsType){
+	/**
+	 * Retorna uma lista com os metodos aplicaveis aos argumentos passados na chamada da função.
+	 * @param argsType
+	 * @return
+	 * @throws GenericFunctionIllegalArgumentException 
+	 */
+	private ArrayList<GFMethod> getPrimaryAplicableMethods(ArrayList<Class> argsType) throws GenericFunctionIllegalArgumentException{
 		//Se nao houver nenhum metodo aplicavel retornamos uma mensagem de erro (System.err) ou criamos uma excepçao e imprimimos o trace
-		return null;
+		boolean isAplicable;
+		ArrayList<GFMethod> aplicableGFMethods=new ArrayList<GFMethod>();
+		ArrayList<GFMethod> gfmPrimary=gfMethodsPrimary.get(argsType.size());
+		if(gfmPrimary!=null){
+			for(GFMethod gfmTemp:gfmPrimary){
+				isAplicable=true;
+				System.out.println("args");
+				System.out.println("metodo temp "+gfmTemp.getArgsString());
+				System.out.println("argumentos "+argsType);
+				for(int i=0; i < argsType.size(); i++){
+					if (!(gfmTemp.getArg(i)).isAssignableFrom(argsType.get(i))) {
+						isAplicable=false;
+						break;
+					}	
+					
+				}
+				if(isAplicable){
+					aplicableGFMethods.add(gfmTemp);
+				}
+			}
+			
+			if(aplicableGFMethods.isEmpty()){
+				throw new GenericFunctionIllegalArgumentException();
+			}	
+			return aplicableGFMethods;
+		}
+		else{
+				throw new GenericFunctionIllegalArgumentException();
+		}	
+		
 	}
 	
 	private ArrayList<GFMethod> sortBeforeAplicableMethods(ArrayList<Class> argsType){
