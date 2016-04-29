@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ist.meic.pa.GenericFunctions.Exceptions.GenericFunctionIllegalArgumentException;
+import ist.meic.pa.GenericFunctions.util.GenericFunctionUtil;
 
 /**
  * 
@@ -303,11 +304,10 @@ public class GenericFunction {
 	 * @return
 	 */
 	private GFMethod getEffectivePrimaryMethod(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
-		//Como nao existem dois metodos genericos com o mesmo tipo de argumentos, se a chamada nao tiver argumentos então apenas existirá no maximo um aplicable method passado para este metodo.
-		if(argsType.size()==0){
+		// Se o gfMethods só tiver 1 metodo entao será esse o efectivo
+		if(gfMethods.size() == 1) {
 			return gfMethods.get(0);
 		}
-			
 		
 		Map<Integer, ArrayList<GFMethod>> gfMethodsOrdered = new HashMap<Integer,ArrayList<GFMethod>>();
 		ArrayList<GFMethod> mostSpecific = gfMethods;
@@ -375,7 +375,7 @@ public class GenericFunction {
 				method.proxyCall(args);
 			}
 		}
-		return primaryReturnValue;
+		return  GenericFunctionUtil.printPrettyResult(primaryReturnValue);
 	}
 	
 }

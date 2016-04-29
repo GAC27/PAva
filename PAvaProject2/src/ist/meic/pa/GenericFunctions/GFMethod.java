@@ -14,11 +14,9 @@ public class GFMethod {
 	 */
 	public GFMethod(){
 		for(Method m : this.getClass().getDeclaredMethods() ) {
-			System.out.println(m.getName());
 			if(m.getName().equals("call")){
 				for(Class c : m.getParameterTypes()){
 					parameters.add(c);
-					System.out.println(c.getName());
 				}
 			}
 		}
