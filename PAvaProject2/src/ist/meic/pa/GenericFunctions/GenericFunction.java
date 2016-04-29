@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ist.meic.pa.GenericFunctions.Exceptions.GenericFunctionIllegalArgumentException;
 
@@ -144,6 +145,11 @@ public class GenericFunction {
 		try{
 		
 			ArrayList<GFMethod> primaryAMethods=getPrimaryAplicableMethods(argsType);
+			beforeAMethods= sortBeforeAplicableMethods(argsType,beforeAMethods);
+			afterAMethods= sortAfterAplicableMethods(argsType,afterAMethods);
+			GFMethod primaryEffectiveMethod= getEffectivePrimaryMethod(argsType,primaryAMethods);
+			
+			return callEffectiveMethod(beforeAMethods,primaryEffectiveMethod, afterAMethods, args);
 		
 		}
 		catch(GenericFunctionIllegalArgumentException e){
@@ -157,14 +163,10 @@ public class GenericFunction {
 				System.out.print(o.getClass() + ",");
 			}
 			System.out.println("]");
+			return null;
 		}
 		
-		beforeAMethods= sortBeforeAplicableMethods(argsType);
-		afterAMethods= sortAfterAplicableMethods(argsType);
-		GFMethod primaryEffectiveMethod= getEffectivePrimaryMethod(argsType);
-		
-		return callEffectiveMethod(beforeAMethods,primaryEffectiveMethod, afterAMethods, args);
-
+	
 	}
 	
 	
@@ -183,7 +185,7 @@ public class GenericFunction {
 			for(GFMethod gfmTemp: gfmBefore){
 				isAplicable=true;
 				for(int i=0; i < argsType.size(); i++){
-					if (!((gfmTemp.getArg(i)).isAssignableFrom(argsType.get(i)))) {
+					if (!(gfmTemp.getArg(i)).isAssignableFrom(argsType.get(i))) {
 						isAplicable=false;
 						break;
 					}	
@@ -248,9 +250,6 @@ public class GenericFunction {
 		if(gfmPrimary!=null){
 			for(GFMethod gfmTemp:gfmPrimary){
 				isAplicable=true;
-				System.out.println("args");
-				System.out.println("metodo temp "+gfmTemp.getArgsString());
-				System.out.println("argumentos "+argsType);
 				for(int i=0; i < argsType.size(); i++){
 					if (!(gfmTemp.getArg(i)).isAssignableFrom(argsType.get(i))) {
 						isAplicable=false;
@@ -274,30 +273,108 @@ public class GenericFunction {
 		
 	}
 	
-	private ArrayList<GFMethod> sortBeforeAplicableMethods(ArrayList<Class> argsType){
+	
+	/**
+	 * Retorna uma lista de GFMethods ordenada do mais especifico para o menos especifico.
+	 * Retorna null se a lista gfMethods recebida estiver vazia
+	 * @param argsType
+	 * @param gfMethods
+	 * @return
+	 */
+	private ArrayList<GFMethod> sortBeforeAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
 		return null;
 	}
 	
-	private ArrayList<GFMethod> sortAfterAplicableMethods(ArrayList<Class> argsType){
+	/**
+	 * Retorna uma lista de GFMethods ordenada do menos especifico para o mais especifico.
+	 * Retorna null se a lista gfMethods recebida estiver vazia
+	 * @param argsType
+	 * @param gfMethods
+	 * @return
+	 */
+	private ArrayList<GFMethod> sortAfterAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
 		return null;
 	}
 	
-	private GFMethod getEffectivePrimaryMethod(ArrayList<Class> argsType){
-		return null;
+	/**
+	 * Retorna o metodo primário mais especifico
+	 * @param argsType
+	 * @param gfMethods
+	 * @return
+	 */
+	private GFMethod getEffectivePrimaryMethod(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
+		//Como nao existem dois metodos genericos com o mesmo tipo de argumentos, se a chamada nao tiver argumentos então apenas existirá no maximo um aplicable method passado para este metodo.
+		if(argsType.size()==0){
+			return gfMethods.get(0);
+		}
+			
+		
+		Map<Integer, ArrayList<GFMethod>> gfMethodsOrdered = new HashMap<Integer,ArrayList<GFMethod>>();
+		ArrayList<GFMethod> mostSpecific = gfMethods;
+		List<Class> classPrecedenceArg;
+		ArrayList<GFMethod> ALGFMtemp=null;
+		Set<Integer> mapKeys;
+		Integer smallestKey;
+		
+		for(int i=0; i< argsType.size(); i++){
+			smallestKey= null;
+			gfMethodsOrdered = new HashMap<Integer,ArrayList<GFMethod>>();
+			classPrecedenceArg= ClassPrecedence.getSuperClasses(argsType.get(i));
+			
+			//ordena num mapa por ordem de especificidade do argumento no indice i os GFMethods
+			for(GFMethod gfmtemp: mostSpecific){
+				ALGFMtemp=gfMethodsOrdered.get(classPrecedenceArg.indexOf(gfmtemp.getArg(i)));
+				if(ALGFMtemp==null){
+					ALGFMtemp=new ArrayList<GFMethod>();
+					ALGFMtemp.add(gfmtemp);
+					gfMethodsOrdered.put(new Integer(classPrecedenceArg.indexOf(gfmtemp.getArg(i))), ALGFMtemp);
+				}
+				else{
+					ALGFMtemp.add(gfmtemp);
+				}
+			}
+			
+			mapKeys= gfMethodsOrdered.keySet();
+			for(Integer tempInt: mapKeys){
+				if(smallestKey==null || smallestKey.compareTo(tempInt)>0){
+					smallestKey=tempInt;
+				}
+			}
+			ALGFMtemp=gfMethodsOrdered.get(smallestKey);
+			//se só existir um metodo no mapa na entrada com a chave mais pequena então esse é o mais especifico
+			if(ALGFMtemp.size()==1){
+				break;
+			}
+			else{
+				mostSpecific=ALGFMtemp;
+			}
+		}
+		return ALGFMtemp.get(0);
 	}
 	
+	/**
+	 * Executa a chamada ao metodo effectivo fazendo chamadas aos metodos auxiliares e primario pela ordem do CLOS e retorna o valor retornado pelo metodo primario.
+	 * @param beforeMethods
+	 * @param primary
+	 * @param afterMethods
+	 * @param args
+	 * @return
+	 */
 	private Object callEffectiveMethod(List<GFMethod> beforeMethods, GFMethod primary, List<GFMethod> afterMethods, Object... args){
 		//Thread.cur
-		for(GFMethod method : beforeMethods){
-			method.proxyCall(args);
+		if(beforeMethods != null){
+			for(GFMethod method : beforeMethods){
+				method.proxyCall(args);
+			}
 		}
 		
 		Object primaryReturnValue = primary.proxyCall(args);
 		
-		for(GFMethod method : afterMethods){
-			method.proxyCall(args);
+		if(afterMethods!= null){
+			for(GFMethod method : afterMethods){
+				method.proxyCall(args);
+			}
 		}
-		
 		return primaryReturnValue;
 	}
 	

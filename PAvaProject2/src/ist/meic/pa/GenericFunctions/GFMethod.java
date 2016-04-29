@@ -30,9 +30,13 @@ public class GFMethod {
 	 * @return 
 	 */
 	public Object proxyCall(Object... args){
-		Class[] params = (Class[])parameters.toArray();
+//		Class[] params = (Class[])parameters.toArray();
+		Class[] params = new Class[parameters.size()];
+		for(int i =0; i<parameters.size(); i++){
+			params[i]=parameters.get(i);
+		}
 		try {
-			return this.getClass().getDeclaredMethod("call", params).invoke(this, args);
+			return this.getClass().getDeclaredMethod("call",  params).invoke(this, args);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
 				| SecurityException e) {
 			e.printStackTrace();
