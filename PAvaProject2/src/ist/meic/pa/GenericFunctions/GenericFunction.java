@@ -1,6 +1,7 @@
 package ist.meic.pa.GenericFunctions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,9 +97,9 @@ public class GenericFunction {
 		}
 		else{
 //			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
-			for(GFMethod temp: gfMethods){
-				if(newGFMethod.getArgsString().equals(temp.getArgsString())){
-					System.err.println("Funcao ja existe para esse tipo de argumentos: "+newGFMethod.getArgsString());
+			for(int i=0; i<gfMethods.size(); i++){
+				if(newGFMethod.getArgsString().equals(gfMethods.get(i).getArgsString())){
+					gfMethods.set(i, newGFMethod);
 					return;
 				}
 			}
@@ -123,9 +124,9 @@ public class GenericFunction {
 		}
 		else{
 //			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
-			for(GFMethod temp: gfMethods){
-				if(newGFMethod.getArgsString().equals(temp.getArgsString())){
-					System.err.println("Funcao ja existe para esse tipo de argumentos: "+newGFMethod.getArgsString());
+			for(int i=0; i<gfMethods.size(); i++){
+				if(newGFMethod.getArgsString().equals(gfMethods.get(i).getArgsString())){
+					gfMethods.set(i, newGFMethod);
 					return;
 				}
 			}
@@ -284,7 +285,16 @@ public class GenericFunction {
 	 * @return
 	 */
 	private ArrayList<GFMethod> sortBeforeAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
-		return null;
+		if(gfMethods.size() == 0) {
+			return null;
+		}
+		// Se o gfMethods só tiver 1 metodo entao será esse o efectivo
+		if(gfMethods.size() == 1) {
+			ArrayList<GFMethod> retOrdered= new ArrayList<GFMethod>();
+			retOrdered.add(gfMethods.get(0));
+			return retOrdered;
+		}
+		return GenericFunctionUtil.sortMethods(0, gfMethods, argsType);
 	}
 	
 	/**
@@ -295,7 +305,19 @@ public class GenericFunction {
 	 * @return
 	 */
 	private ArrayList<GFMethod> sortAfterAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
-		return null;
+		ArrayList<GFMethod> retOrdered= new ArrayList<GFMethod>();
+		
+		if(gfMethods.size() == 0) {
+			return null;
+		}
+		// Se o gfMethods só tiver 1 metodo entao será esse o efectivo
+		if(gfMethods.size() == 1) {
+			retOrdered.add(gfMethods.get(0));
+			return retOrdered;
+		}
+		retOrdered=GenericFunctionUtil.sortMethods(0, gfMethods, argsType);
+		Collections.reverse(retOrdered);
+		return retOrdered;
 	}
 	
 	/**
@@ -309,48 +331,8 @@ public class GenericFunction {
 		if(gfMethods.size() == 1) {
 			return gfMethods.get(0);
 		}
-		
-		Map<Integer, ArrayList<GFMethod>> gfMethodsOrdered = new HashMap<Integer,ArrayList<GFMethod>>();
-		ArrayList<GFMethod> mostSpecific = gfMethods;
-		List<Class> classPrecedenceArg;
-		ArrayList<GFMethod> ALGFMtemp=null;
-		Set<Integer> mapKeys;
-		Integer smallestKey;
-		
-		for(int i=0; i< argsType.size(); i++){
-			smallestKey= null;
-			gfMethodsOrdered = new HashMap<Integer,ArrayList<GFMethod>>();
-			classPrecedenceArg= ClassPrecedence.getSuperClasses(argsType.get(i));
-			
-			//ordena num mapa por ordem de especificidade do argumento no indice i os GFMethods
-			for(GFMethod gfmtemp: mostSpecific){
-				ALGFMtemp=gfMethodsOrdered.get(classPrecedenceArg.indexOf(gfmtemp.getArg(i)));
-				if(ALGFMtemp==null){
-					ALGFMtemp=new ArrayList<GFMethod>();
-					ALGFMtemp.add(gfmtemp);
-					gfMethodsOrdered.put(new Integer(classPrecedenceArg.indexOf(gfmtemp.getArg(i))), ALGFMtemp);
-				}
-				else{
-					ALGFMtemp.add(gfmtemp);
-				}
-			}
-			
-			mapKeys= gfMethodsOrdered.keySet();
-			for(Integer tempInt: mapKeys){
-				if(smallestKey==null || smallestKey.compareTo(tempInt)>0){
-					smallestKey=tempInt;
-				}
-			}
-			ALGFMtemp=gfMethodsOrdered.get(smallestKey);
-			//se só existir um metodo no mapa na entrada com a chave mais pequena então esse é o mais especifico
-			if(ALGFMtemp.size()==1){
-				break;
-			}
-			else{
-				mostSpecific=ALGFMtemp;
-			}
-		}
-		return ALGFMtemp.get(0);
+
+		return GenericFunctionUtil.sortMethods(0, gfMethods, argsType).get(0);
 	}
 	
 	/**
