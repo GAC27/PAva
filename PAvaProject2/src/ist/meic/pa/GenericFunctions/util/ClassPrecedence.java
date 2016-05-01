@@ -30,7 +30,10 @@ public class ClassPrecedence{
 		clazzList.add(superclazz);
 		interfaces= superclazz.getInterfaces();
 		for(Class c : interfaces){
-			clazzList.add(c);
+			if(!clazzList.contains(c)){
+				clazzList.add(c);
+			}
+			
 		}
 		clazz = superclazz;
 		superclazz = clazz.getSuperclass();
