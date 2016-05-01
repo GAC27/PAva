@@ -1,14 +1,23 @@
-package ist.meic.pa.GenericFunctions;
+package ist.meic.pa.GenericFunctions.util;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClassPrecedence {
+public class ClassPrecedence{
+	/**
+	 * Cria a lista de precendencias da classe do objecto "o"
+	 * @param o
+	 * @return
+	 */
 	public static List<Class> getSuperClasses(Object o) {
 		  Class clazz= o.getClass();
 		  return getSuperClasses(clazz);
 	}
-	
+	/**
+	 * Cria a lista de precendencias da classe  "clazz"
+	 * @param clazz
+	 * @return
+	 */
 	public static List<Class> getSuperClasses(Class clazz) {
 	  List<Class> clazzList = new ArrayList<Class>();
 	  Class superclazz = clazz.getSuperclass();
