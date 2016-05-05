@@ -54,7 +54,9 @@ public class GenericFunction {
 		gfMethodsAfter.addAfterMethod(newGFMethod);
 	}
 
+	
 
+	
 	public Object call(Object... args){
 		ArrayList<Class> argsType = new ArrayList<Class>();
 
@@ -76,16 +78,21 @@ public class GenericFunction {
 		
 		}
 		catch(GenericFunctionIllegalArgumentException e){
-			System.out.print("Exception in thread "+ Thread.currentThread().getName()+ " java.lang.IllegalArgumentException:" 
+			System.err.print("Exception in thread "+ Thread.currentThread().getName()+ " java.lang.IllegalArgumentException:\n\t" 
 				+"No methods for generic function" + GFName + "with args [");
 			for(Object o: args){
-				System.out.print(o + ",");
+				System.err.print(o + ",");
 			}
-			System.out.print(" of classes [");
+			System.err.print(" of classes [");
+			int i=0;
 			for(Object o: args){
-				System.out.print(o.getClass() + ",");
+				System.err.print(o.getClass());
+				if(i < args.length - 1){
+					System.err.print(", ");
+				}
+				i++;
 			}
-			System.out.println("]");
+			System.err.println("]");
 			return null;
 		}
 		
