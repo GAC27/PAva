@@ -2,19 +2,21 @@ package ist.meic.pa.GenericFunctionsExtended;
 
 import java.util.List;
 
-import ist.meic.pa.GenericFunctions.GFMethod;
+import ist.meic.pa.GenericFunctionsExtended.GFMethod;
 
 public class EffectiveMethodCacheItem {
 	
 	private List<GFMethod> beforeMethods;
 	private GFMethod primary;
 	private List<GFMethod> afterMethods;
+	private List<GFMethod> aroundMethods;
 	private Object[] args;
 	
-	public EffectiveMethodCacheItem(List<GFMethod> beforeMethods, GFMethod primary, List<GFMethod> afterMethods, Object[] args) {
+	public EffectiveMethodCacheItem(List<GFMethod> beforeMethods, GFMethod primary, List<GFMethod> afterMethods,List<GFMethod> aroundMethods, Object[] args) {
 		this.beforeMethods = beforeMethods;
 		this.primary = primary;
 		this.afterMethods = afterMethods;
+		this.aroundMethods = aroundMethods;
 		this.args = args;
 	}
 	
@@ -42,7 +44,13 @@ public class EffectiveMethodCacheItem {
 	public void setArgs(Object[] args) {
 		this.args = args;
 	}
-	
-	
 
+	public List<GFMethod> getAroundMethods() {
+		return aroundMethods;
+	}
+
+	public void setAroundMethods(List<GFMethod> aroundMethods) {
+		this.aroundMethods = aroundMethods;
+	}
+	
 }

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ist.meic.pa.GenericFunctions.GFMethod;
+import ist.meic.pa.GenericFunctionsExtended.GFMethod;
 
 public class EffectiveMethodCache {
 
@@ -30,13 +30,13 @@ public class EffectiveMethodCache {
 		}
 	}
 
-	public void setItem(List<GFMethod> beforeMethods, GFMethod primary, List<GFMethod> afterMethods, Object... args) {
+	public void setItem(List<GFMethod> beforeMethods, GFMethod primary, List<GFMethod> afterMethods, List<GFMethod> aroundMethods, Object... args) {
 		int n = args.length;
 		String key = generateKey(args);
 		
 		if(cache.get(n) == null) {
 			cache.put(n, new HashMap<String, EffectiveMethodCacheItem>());
-			cache.get(n).put(key, new EffectiveMethodCacheItem(beforeMethods,primary,afterMethods,args));
+			cache.get(n).put(key, new EffectiveMethodCacheItem(beforeMethods,primary,afterMethods,aroundMethods,args));
 		} 
 	}
 

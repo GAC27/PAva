@@ -3,7 +3,6 @@ package ist.meic.pa.GenericFunctionsExtended;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import ist.meic.pa.GenericFunctions.Exceptions.GenericFunctionIllegalArgumentException;
 import ist.meic.pa.GenericFunctions.util.GenericFunctionUtil;
 
@@ -28,6 +27,8 @@ public class GenericFunction {
 	 * Classe que trata dos metodos around da função generica
 	 */
 	AroundFunctionHandler gfMethodsAround = new AroundFunctionHandler();
+	
+	private EffectiveMethodCache cache;
 
 	/**
 	 * Nome do metodo Generico
@@ -41,21 +42,26 @@ public class GenericFunction {
 	 */
 	public GenericFunction(String GenFunName){
 		GFName=GenFunName;
+		cache = new EffectiveMethodCache();
 	}
 	
 	public void addMethod(GFMethod newGFMethod){
+		cache.invalidateCache(newGFMethod.getArgs());
 		gfMethodsPrimary.addMethod(newGFMethod);
 	}
 	
 	public void addBeforeMethod(GFMethod newGFMethod){
+		cache.invalidateCache(newGFMethod.getArgs());
 		gfMethodsBefore.addBeforeMethod(newGFMethod);
 	}
 	
 	public void addAfterMethod(GFMethod newGFMethod){
+		cache.invalidateCache(newGFMethod.getArgs());
 		gfMethodsAfter.addAfterMethod(newGFMethod);
 	}
 	
 	public void addAroundMethod(GFMethod newGFMethod){
+		cache.invalidateCache(newGFMethod.getArgs());
 		gfMethodsAround.addAroundMethod(newGFMethod);
 	}
 	
@@ -63,6 +69,12 @@ public class GenericFunction {
 	
 	public Object call(Object... args){
 		ArrayList<Class> argsType = new ArrayList<Class>();
+		
+		EffectiveMethodCacheItem effectiveMethod = cache.getItem(args);
+		
+		if(effectiveMethod != null) {
+			return callEffectiveMethod(effectiveMethod.getBeforeMethods(),effectiveMethod.getPrimary(), effectiveMethod.getAfterMethods(), effectiveMethod.getAroundMethods(), args);
+		}
 
 		for(Object o: args){
 			//Ver tipo de cada argumento e meter ordenados os tipos dos args para dentro do Array List.
@@ -80,6 +92,7 @@ public class GenericFunction {
 			aroundAMethod= gfMethodsAround.sortAroundAplicableMethods(argsType, aroundAMethod);
 			GFMethod primaryEffectiveMethod= gfMethodsPrimary.getEffectivePrimaryMethod(argsType,primaryAMethods);
 			
+			cache.setItem(beforeAMethods, primaryEffectiveMethod, afterAMethods, aroundAMethod, args);
 			return callEffectiveMethod(beforeAMethods,primaryEffectiveMethod, afterAMethods, aroundAMethod, args);
 		
 		}
