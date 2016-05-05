@@ -47,7 +47,7 @@ public class PrimaryFunctionHandler extends FunctionHandler{
 	 * @return
 	 * @throws GenericFunctionIllegalArgumentException 
 	 */
-	ArrayList<GFMethod> getPrimaryAplicableMethods(ArrayList<Class> argsType) throws GenericFunctionIllegalArgumentException{
+	public ArrayList<GFMethod> getPrimaryAplicableMethods(ArrayList<Class> argsType) throws GenericFunctionIllegalArgumentException{
 		//Se nao houver nenhum metodo aplicavel retornamos uma mensagem de erro (System.err) ou criamos uma excepçao e imprimimos o trace
 		ArrayList<GFMethod> gfmPrimary=gfMethodsPrimary.get(argsType.size());
 		if(gfmPrimary!=null){
@@ -70,7 +70,7 @@ public class PrimaryFunctionHandler extends FunctionHandler{
 	 * @param gfMethods
 	 * @return
 	 */
-	GFMethod getEffectivePrimaryMethod(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
+	public GFMethod getEffectivePrimaryMethod(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
 		// Se o gfMethods só tiver 1 metodo entao será esse o efectivo
 		if(gfMethods.size() == 1) {
 			return gfMethods.get(0);

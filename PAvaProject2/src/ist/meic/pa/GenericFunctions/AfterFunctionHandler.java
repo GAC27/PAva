@@ -46,7 +46,7 @@ public class AfterFunctionHandler extends FunctionHandler{
 	 * @return
 	 * @throws GenericFunctionIllegalArgumentException 
 	 */
-	ArrayList<GFMethod> getAfterAplicableMethods(ArrayList<Class> argsType){
+	public ArrayList<GFMethod> getAfterAplicableMethods(ArrayList<Class> argsType){
 		ArrayList<GFMethod> gfmAfter=gfMethodsAfter.get(argsType.size());
 		if(gfmAfter!=null){
 			ArrayList<GFMethod> aplicableGFMethods= getAplicableMethods(argsType, gfmAfter);
@@ -68,7 +68,7 @@ public class AfterFunctionHandler extends FunctionHandler{
 	 * @param gfMethods
 	 * @return
 	 */
-	ArrayList<GFMethod> sortAfterAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
+	public ArrayList<GFMethod> sortAfterAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
 		ArrayList<GFMethod> retOrdered= new ArrayList<GFMethod>();
 		
 		if(gfMethods.size() == 0) {

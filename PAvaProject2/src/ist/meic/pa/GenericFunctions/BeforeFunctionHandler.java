@@ -45,7 +45,7 @@ public class BeforeFunctionHandler extends FunctionHandler{
 	 * @return
 	 * @throws GenericFunctionIllegalArgumentException 
 	 */
-	ArrayList<GFMethod> getBeforeAplicableMethods(ArrayList<Class> argsType){
+	public ArrayList<GFMethod> getBeforeAplicableMethods(ArrayList<Class> argsType){
 		ArrayList<GFMethod> gfmBefore=gfMethodsBefore.get(argsType.size());
 		if(gfmBefore!=null){
 			ArrayList<GFMethod> aplicableGFMethods= getAplicableMethods(argsType, gfmBefore);
@@ -68,7 +68,7 @@ public class BeforeFunctionHandler extends FunctionHandler{
 	 * @param gfMethods
 	 * @return
 	 */
-	ArrayList<GFMethod> sortBeforeAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
+	public ArrayList<GFMethod> sortBeforeAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
 		if(gfMethods.size() == 0) {
 			return null;
 		}
