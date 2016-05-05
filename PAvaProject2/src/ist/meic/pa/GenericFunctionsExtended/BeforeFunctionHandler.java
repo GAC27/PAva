@@ -1,32 +1,31 @@
-package ist.meic.pa.GenericFunctions;
+package ist.meic.pa.GenericFunctionsExtended;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import ist.meic.pa.GenericFunctions.Exceptions.GenericFunctionIllegalArgumentException;
 import ist.meic.pa.GenericFunctions.util.GenericFunctionUtil;
 
-public class AfterFunctionHandler extends FunctionHandler{
+public class BeforeFunctionHandler extends FunctionHandler{
+
 	/**
-	 * Mapa de GFMethods auxiliares(after) desta função genérica
+	 * Mapa de GFMethods auxiliares(before) desta função genérica
 	 * Chave é o numero de argumentos
 	 */
-	Map<Integer,ArrayList<GFMethod>> gfMethodsAfter = new HashMap<Integer,ArrayList<GFMethod>>();
+	Map<Integer,ArrayList<GFMethod>> gfMethodsBefore = new HashMap<Integer,ArrayList<GFMethod>>();
 	
 	/**
-	 * Adiciona um novo metodo auxiliario a ser executado depois do primário 
+	 * Adiciona um novo metodo auxiliario a ser executado antes do primário 
 	 * Verifica se já existe um metodo com o numero e tipos de argumentos iguais. Se existir não adiciona o metodo, se não existir adiciona
 	 * @param newGFMethod
 	 */
-
-	public void addAfterMethod(GFMethod newGFMethod){
-		ArrayList<GFMethod> gfMethods=gfMethodsAfter.get(newGFMethod.getArgs().size());
+	public void addBeforeMethod(GFMethod newGFMethod){
+		ArrayList<GFMethod> gfMethods=gfMethodsBefore.get(newGFMethod.getArgs().size());
 		if(gfMethods == null){
 			gfMethods=new ArrayList<GFMethod>();
 			gfMethods.add(newGFMethod);
-			gfMethodsAfter.put(newGFMethod.getArgs().size(), gfMethods) ;
+			gfMethodsBefore.put(newGFMethod.getArgs().size(), gfMethods) ;
 		}
 		else{
 //			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
@@ -46,41 +45,39 @@ public class AfterFunctionHandler extends FunctionHandler{
 	 * @return
 	 * @throws GenericFunctionIllegalArgumentException 
 	 */
-	public ArrayList<GFMethod> getAfterAplicableMethods(ArrayList<Class> argsType){
-		ArrayList<GFMethod> gfmAfter=gfMethodsAfter.get(argsType.size());
-		if(gfmAfter!=null){
-			ArrayList<GFMethod> aplicableGFMethods= getAplicableMethods(argsType, gfmAfter);
-			
+	public ArrayList<GFMethod> getBeforeAplicableMethods(ArrayList<Class> argsType){
+		ArrayList<GFMethod> gfmBefore=gfMethodsBefore.get(argsType.size());
+		if(gfmBefore!=null){
+			ArrayList<GFMethod> aplicableGFMethods= getAplicableMethods(argsType, gfmBefore);
+
 			return aplicableGFMethods;
 		}
 		
 		else{
 			return new ArrayList<GFMethod>();
 		}
+		
 	}
-
+	
 	
 
 	/**
-	 * Retorna uma lista de GFMethods ordenada do menos especifico para o mais especifico.
+	 * Retorna uma lista de GFMethods ordenada do mais especifico para o menos especifico.
 	 * Retorna null se a lista gfMethods recebida estiver vazia
 	 * @param argsType
 	 * @param gfMethods
 	 * @return
 	 */
-	public ArrayList<GFMethod> sortAfterAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
-		ArrayList<GFMethod> retOrdered= new ArrayList<GFMethod>();
-		
+	public ArrayList<GFMethod> sortBeforeAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
 		if(gfMethods.size() == 0) {
 			return null;
 		}
 		// Se o gfMethods só tiver 1 metodo entao será esse o efectivo
 		if(gfMethods.size() == 1) {
+			ArrayList<GFMethod> retOrdered= new ArrayList<GFMethod>();
 			retOrdered.add(gfMethods.get(0));
 			return retOrdered;
 		}
-		retOrdered=sortMethods(0, gfMethods, argsType);
-		Collections.reverse(retOrdered);
-		return retOrdered;
+		return sortMethods(0, gfMethods, argsType);
 	}
 }
