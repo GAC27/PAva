@@ -3,10 +3,7 @@ package ist.meic.pa.GenericFunctionsExtended;
 import java.util.ArrayList;
 import java.util.List;
 
-import ist.meic.pa.GenericFunctions.AfterFunctionHandler;
-import ist.meic.pa.GenericFunctions.BeforeFunctionHandler;
-import ist.meic.pa.GenericFunctions.GFMethod;
-import ist.meic.pa.GenericFunctions.PrimaryFunctionHandler;
+
 import ist.meic.pa.GenericFunctions.Exceptions.GenericFunctionIllegalArgumentException;
 import ist.meic.pa.GenericFunctions.util.GenericFunctionUtil;
 
@@ -26,6 +23,11 @@ public class GenericFunction {
 	 * Classe que trata dos metodos after da função generica
 	 */
 	AfterFunctionHandler gfMethodsAfter = new AfterFunctionHandler();
+	
+	/**
+	 * Classe que trata dos metodos around da função generica
+	 */
+	AroundFunctionHandler gfMethodsAround = new AroundFunctionHandler();
 
 	/**
 	 * Nome do metodo Generico
@@ -52,7 +54,10 @@ public class GenericFunction {
 	public void addAfterMethod(GFMethod newGFMethod){
 		gfMethodsAfter.addAfterMethod(newGFMethod);
 	}
-
+	
+	public void addAroundMethod(GFMethod newGFMethod){
+		gfMethodsAround.addAroundMethod(newGFMethod);
+	}
 	
 
 	
@@ -63,17 +68,19 @@ public class GenericFunction {
 			//Ver tipo de cada argumento e meter ordenados os tipos dos args para dentro do Array List.
 			argsType.add(o.getClass());
 		}
-
+		
 		ArrayList<GFMethod> beforeAMethods=gfMethodsBefore.getBeforeAplicableMethods(argsType);
 		ArrayList<GFMethod> afterAMethods=gfMethodsAfter.getAfterAplicableMethods(argsType);
+		ArrayList<GFMethod> aroundAMethod=gfMethodsAround.getAroundAplicableMethods(argsType);
 		try{
 		
 			ArrayList<GFMethod> primaryAMethods=gfMethodsPrimary.getPrimaryAplicableMethods(argsType);
 			beforeAMethods= gfMethodsBefore.sortBeforeAplicableMethods(argsType,beforeAMethods);
 			afterAMethods= gfMethodsAfter.sortAfterAplicableMethods(argsType,afterAMethods);
+			aroundAMethod= gfMethodsAround.sortAroundAplicableMethods(argsType, aroundAMethod);
 			GFMethod primaryEffectiveMethod= gfMethodsPrimary.getEffectivePrimaryMethod(argsType,primaryAMethods);
 			
-			return callEffectiveMethod(beforeAMethods,primaryEffectiveMethod, afterAMethods, args);
+			return callEffectiveMethod(beforeAMethods,primaryEffectiveMethod, afterAMethods, aroundAMethod, args);
 		
 		}
 		catch(GenericFunctionIllegalArgumentException e){
@@ -107,22 +114,28 @@ public class GenericFunction {
 	 * @param args
 	 * @return
 	 */
-	private Object callEffectiveMethod(List<GFMethod> beforeMethods, GFMethod primary, List<GFMethod> afterMethods, Object... args){
-		//Thread.cur
-		if(beforeMethods != null){
-			for(GFMethod method : beforeMethods){
-				method.proxyCall(args);
+	Object callEffectiveMethod(List<GFMethod> beforeMethods, GFMethod primary, List<GFMethod> afterMethods, List<GFMethod> aroundMethods,Object... args){
+		Object primaryReturnValue;
+		if(aroundMethods==null || aroundMethods.size()==0){
+			if(beforeMethods != null){
+				for(GFMethod method : beforeMethods){
+					method.proxyCall(args);
+				}
 			}
-		}
-		
-		Object primaryReturnValue = primary.proxyCall(args);
-		
-		if(afterMethods!= null){
-			for(GFMethod method : afterMethods){
-				method.proxyCall(args);
+			
+			primaryReturnValue = primary.proxyCall(args);
+			
+			if(afterMethods!= null){
+				for(GFMethod method : afterMethods){
+					method.proxyCall(args);
+				}
 			}
+			return  GenericFunctionUtil.printPrettyResult(primaryReturnValue);
 		}
-		return  GenericFunctionUtil.printPrettyResult(primaryReturnValue);
+		else{
+			primaryReturnValue=aroundMethods.get(0).proxyCallAround(beforeMethods, primary, afterMethods, aroundMethods,this , args);
+			return primaryReturnValue;
+		}
 	}
 	
 }

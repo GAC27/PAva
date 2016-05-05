@@ -1,4 +1,4 @@
-package ist.meic.pa.GenericFunctions;
+package ist.meic.pa.GenericFunctionsExtended;
 
 import java.util.ArrayList;
 import java.util.HashMap;

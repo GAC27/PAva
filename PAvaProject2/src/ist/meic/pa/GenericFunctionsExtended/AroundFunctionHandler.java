@@ -1,31 +1,30 @@
-package ist.meic.pa.GenericFunctions;
+package ist.meic.pa.GenericFunctionsExtended;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import ist.meic.pa.GenericFunctions.Exceptions.GenericFunctionIllegalArgumentException;
-import ist.meic.pa.GenericFunctions.util.GenericFunctionUtil;
 
-public class BeforeFunctionHandler extends FunctionHandler{
+public class AroundFunctionHandler extends FunctionHandler {
 
 	/**
-	 * Mapa de GFMethods auxiliares(before) desta função genérica
+	 * Mapa de GFMethods auxiliares(around) desta função genérica
 	 * Chave é o numero de argumentos
 	 */
-	Map<Integer,ArrayList<GFMethod>> gfMethodsBefore = new HashMap<Integer,ArrayList<GFMethod>>();
+	Map<Integer,ArrayList<GFMethod>> gfMethodsAround = new HashMap<Integer,ArrayList<GFMethod>>();
 	
 	/**
 	 * Adiciona um novo metodo auxiliario a ser executado antes do primário 
 	 * Verifica se já existe um metodo com o numero e tipos de argumentos iguais. Se existir não adiciona o metodo, se não existir adiciona
 	 * @param newGFMethod
 	 */
-	public void addBeforeMethod(GFMethod newGFMethod){
-		ArrayList<GFMethod> gfMethods=gfMethodsBefore.get(newGFMethod.getArgs().size());
+	public void addAroundMethod(GFMethod newGFMethod){
+		ArrayList<GFMethod> gfMethods=gfMethodsAround.get(newGFMethod.getArgs().size());
 		if(gfMethods == null){
 			gfMethods=new ArrayList<GFMethod>();
 			gfMethods.add(newGFMethod);
-			gfMethodsBefore.put(newGFMethod.getArgs().size(), gfMethods) ;
+			gfMethodsAround.put(newGFMethod.getArgs().size(), gfMethods) ;
 		}
 		else{
 //			Verificar aqui se o metodo a ser inserido tem os argumentos iguais a algum já existente no array
@@ -40,15 +39,15 @@ public class BeforeFunctionHandler extends FunctionHandler{
 	}
 	
 	/**
-	 * Retorna uma lista com os metodos auxiliares do tipo before aplicaveis aos argumentos passados na chamada da função.
+	 * Retorna uma lista com os metodos auxiliares do tipo around aplicaveis aos argumentos passados na chamada da função.
 	 * @param argsType
 	 * @return
 	 * @throws GenericFunctionIllegalArgumentException 
 	 */
-	public ArrayList<GFMethod> getBeforeAplicableMethods(ArrayList<Class> argsType){
-		ArrayList<GFMethod> gfmBefore=gfMethodsBefore.get(argsType.size());
-		if(gfmBefore!=null){
-			ArrayList<GFMethod> aplicableGFMethods= getAplicableMethods(argsType, gfmBefore);
+	public ArrayList<GFMethod> getAroundAplicableMethods(ArrayList<Class> argsType){
+		ArrayList<GFMethod> gfmAround=gfMethodsAround.get(argsType.size());
+		if(gfmAround!=null){
+			ArrayList<GFMethod> aplicableGFMethods= getAplicableMethods(argsType, gfmAround);
 
 			return aplicableGFMethods;
 		}
@@ -62,13 +61,13 @@ public class BeforeFunctionHandler extends FunctionHandler{
 	
 
 	/**
-	 * Retorna uma lista de GFMethods ordenada do mais especifico para o menos especifico.
-	 * Retorna null se a lista gfMethods recebida estiver vazia
+	 * Retorna os metodos around ordenados por especificidade.
+	 * Se não existir um metodo around retorna null.
 	 * @param argsType
 	 * @param gfMethods
 	 * @return
 	 */
-	public ArrayList<GFMethod> sortBeforeAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
+	public ArrayList<GFMethod> sortAroundAplicableMethods(ArrayList<Class> argsType,ArrayList<GFMethod> gfMethods){
 		if(gfMethods.size() == 0) {
 			return null;
 		}
@@ -81,3 +80,5 @@ public class BeforeFunctionHandler extends FunctionHandler{
 		return sortMethods(0, gfMethods, argsType);
 	}
 }
+
+

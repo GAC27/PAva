@@ -1,4 +1,4 @@
-package ist.meic.pa.GenericFunctions;
+package ist.meic.pa.GenericFunctionsExtended;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -8,6 +8,17 @@ import java.util.List;
 public class GFMethod {
 	
 	List<Class> parameters = new ArrayList<Class>(); 
+	
+	List<GFMethod> beforeMethods=null;
+	GFMethod primary=null;
+	List<GFMethod> afterMethods=null;
+	List<GFMethod> aroundMethods=null;
+	Object[] args=null;
+	GenericFunction gFunction=null;
+	
+	
+	
+	
 	
 	/**
 	 * Guarda o tipo dos argumentos da função call na lista parameters
@@ -69,6 +80,28 @@ public class GFMethod {
 	 */
 	public Class getArg(int index){
 		return parameters.get(index);
+	}
+	
+	
+	/**
+	 * Executa uma chamada ao metodo "call" usando reflexão 
+	 * @param args
+	 * @return 
+	 */
+	public Object proxyCallAround(List<GFMethod> beforeMethods, GFMethod primary, List<GFMethod> afterMethods, List<GFMethod> aroundMethods, GenericFunction gFunction,Object... args){
+		this.beforeMethods=beforeMethods;
+		this.primary=primary;
+		this.afterMethods=afterMethods;
+		this.aroundMethods=aroundMethods;
+		this.args=args;
+		this.gFunction=gFunction;
+		
+		return proxyCall(args);
+	}
+	
+	
+	public Object call_next_method(){
+		return gFunction.callEffectiveMethod(beforeMethods, primary, afterMethods, aroundMethods.subList(1, aroundMethods.size()), args);
 	}
 	
 }
