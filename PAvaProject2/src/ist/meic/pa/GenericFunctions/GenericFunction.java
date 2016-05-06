@@ -9,7 +9,6 @@ import java.util.Set;
 
 import ist.meic.pa.GenericFunctions.Exceptions.GenericFunctionIllegalArgumentException;
 import ist.meic.pa.GenericFunctions.util.ClassPrecedence;
-import ist.meic.pa.GenericFunctions.util.GenericFunctionUtil;
 
 
 public class GenericFunction {

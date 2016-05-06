@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ist.meic.pa.GenericFunctions.Exceptions.GenericFunctionIllegalArgumentException;
-import ist.meic.pa.GenericFunctions.util.GenericFunctionUtil;
 
 
 public class GenericFunction {
@@ -143,7 +142,7 @@ public class GenericFunction {
 					method.proxyCall(args);
 				}
 			}
-			return  GenericFunctionUtil.printPrettyResult(primaryReturnValue);
+			return  primaryReturnValue;
 		}
 		else{
 			primaryReturnValue=aroundMethods.get(0).proxyCallAround(beforeMethods, primary, afterMethods, aroundMethods,this , args);

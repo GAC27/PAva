@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ist.meic.pa.GenericFunctions.Exceptions.GenericFunctionIllegalArgumentException;
-import ist.meic.pa.GenericFunctions.util.GenericFunctionUtil;
 
 public class AfterFunctionHandler extends FunctionHandler{
 	/**
