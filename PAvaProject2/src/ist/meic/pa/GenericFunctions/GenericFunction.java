@@ -123,7 +123,8 @@ public class GenericFunction {
 				method.proxyCall(args);
 			}
 		}
-		return  GenericFunctionUtil.printPrettyResult(primaryReturnValue);
+//		return  GenericFunctionUtil.printPrettyResult(primaryReturnValue);
+		return primaryReturnValue;
 	}
 	
 }
