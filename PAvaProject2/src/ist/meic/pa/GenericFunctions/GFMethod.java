@@ -33,7 +33,10 @@ public class GFMethod {
 			params[i]=parameters.get(i);
 		}
 		try {
-			return this.getClass().getDeclaredMethod("call",  params).invoke(this, args);
+			Method m= this.getClass().getDeclaredMethod("call",  params);
+			if(!m.isAccessible())
+			m.setAccessible(true);
+			return m.invoke(this, args);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
 				| SecurityException e) {
 			e.printStackTrace();
