@@ -39,7 +39,7 @@ public class GFMethod {
 			e.printStackTrace();
 			// this should never happen
 		}
-		return null;
+		return "";
 	}
 	
 	/**

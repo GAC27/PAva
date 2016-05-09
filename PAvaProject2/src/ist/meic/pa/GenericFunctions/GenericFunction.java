@@ -1,6 +1,7 @@
 package ist.meic.pa.GenericFunctions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -77,13 +78,23 @@ public class GenericFunction {
 		
 		}
 		catch(GenericFunctionIllegalArgumentException e){
-			System.err.print("Exception in thread "+ Thread.currentThread().getName()+ " java.lang.IllegalArgumentException:\n\t" 
-				+"No methods for generic function" + GFName + "with args [");
-			for(Object o: args){
-				System.err.print(o + ",");
-			}
-			System.err.print(" of classes [");
+			System.err.print("Exception in thread \""+ Thread.currentThread().getName()+ "\" java.lang.IllegalArgumentException:\n" 
+				+"No methods for generic function " + GFName + " with args [");
 			int i=0;
+			for(Object o: args){
+				if (o instanceof Object[]) {
+					System.err.print(Arrays.deepToString((Object[])o) );
+				} else {
+					System.err.print(o );
+				}
+				if(i < args.length - 1){
+					System.err.print(", ");
+				}
+				i++;
+			}
+			System.err.println("]");
+			System.err.print("of classes [");
+			i=0;
 			for(Object o: args){
 				System.err.print(o.getClass());
 				if(i < args.length - 1){
@@ -92,7 +103,15 @@ public class GenericFunction {
 				i++;
 			}
 			System.err.println("]");
-			return null;
+			i=0;
+			for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+				if(!(i==0)){
+					System.err.println("\t at "+ste);
+				}
+			    i++;
+			}
+			
+			return "";
 		}
 		
 	
