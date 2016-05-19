@@ -59,7 +59,7 @@ public abstract class FunctionHandler {
 				retOrdered.addAll(ALGFMtemp);
 			}
 			else{
-				retOrdered.addAll(sortMethods(indexArg++,ALGFMtemp,argsType));
+				retOrdered.addAll(sortMethods(indexArg+1,ALGFMtemp,argsType));
 			}
 		}
 		return retOrdered;
